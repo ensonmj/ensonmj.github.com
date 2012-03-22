@@ -1,214 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[TechToy]]></title>
-  <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
-  <link href="http://ensonmj.github.com/"/>
-  <updated>2012-03-22T23:31:19+08:00</updated>
-  <id>http://ensonmj.github.com/</id>
-  <author>
-    <name><![CDATA[ensonmj]]></name>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[转]linux-编辑器-vi-emacs-grep-gawk-sed等 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="第１章：vi(vim) －visual editor (improve) 启动vi（vim） vi/vim filename：从filename第一行开始编辑，即光标默认停留在文件第一行第一个字符处； +n filename：从第n行开始编辑； + filename：从最后一行开始编辑； +/ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/07/linux_editor">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
     
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+      <h1 class="entry-title">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
 
   
-  <entry>
-    <title type="html"><![CDATA[彻底解决WebRequest的GetResponse阻塞问题]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block/"/>
-    <updated>2012-02-16T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block</id>
-    <content type="html"><![CDATA[<p>第一版</p>
-
-<div><script src='https://gist.github.com/1844714.js?file=WebResponse_block_first.cs'></script>
-<noscript><pre><code>//第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-}
-catch(WebException ex)
-{
-  throw ex;
-}
-
-</code></pre></noscript></div>
 
 
-<p>第二版</p>
-
-<div><script src='https://gist.github.com/1844755.js?file=WebResponse_block_second.cs'></script>
-<noscript><pre><code>//第二版，只释放了response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-}
-catch(WebException ex)
-{
-  res.Close();
-  throw ex;
-}</code></pre></noscript></div>
+<time datetime="2012-02-07T20:00:00+08:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
 
 
-<p>第三版</p>
-
-<div><script src='https://gist.github.com/1844761.js?file=WebResponse_block_third.cs'></script>
-<noscript><pre><code>//正确释放request和response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}
-</code></pre></noscript></div>
-
-
-<p>第四版</p>
-
-<div><script src='https://gist.github.com/1844774.js?file=WebResponse_block_fourth.cs'></script>
-<noscript><pre><code>//代理走不通的情况下，会导致导致阻塞
-WebRequest wr = WebRequest.Create(URL);
-//Proxy may block the http request
-wr.Proxy = null;
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-<p>第五版</p>
-
-<div><script src='https://gist.github.com/1844796.js?file=WebResponse_block_fifth.cs'></script>
-<noscript><pre><code>//多线程并发时，默认最多只能建立两个持久连接，后续请求也会阻塞，
-//增大默认连接数限制可解决此问题
-
-//C#默认只允许两个持久连接，http协议的RFC文档也有此建议
-System.Net.ServicePointManager.DefaultConnectionLimit = 256;
-
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[转]如何优雅的升级ruby项目]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/02/12/update_ruby_project/"/>
-    <updated>2012-02-12T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/02/12/update_ruby_project</id>
-    <content type="html"><![CDATA[<p>一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。</p>
-
-<p>但是从最近的一个<a href="http://ruby-china.org/topics/172">帖子</a>发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种:</p>
-
-<pre><code>optimistic[乐观]
-pessimistic[悲观]
-super pessimistic[超级悲观]
-</code></pre>
-
-<p>以nokogiri这个gem为例：</p>
-
-<pre><code>gem ‘nokogiri’ #optimistic 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #optimistic 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #pessimistic 
-gem ‘nokogiri’, ‘~&gt;1.4’ #pessimistic 
-gem ‘nokogiri’, ‘1.4.2’ # super pessimistic 
-</code></pre>
-
-<p>第一种方式很少人采用，因为一旦升级很容易因为API不兼容导致你的项目爆掉。</p>
-
-<p>主要分歧在第二种和第三种。选择第三种方案（super pessimistic）的观点通常是锁定版本号稳定，升级会带来麻烦，以前升级出现过问题，求稳等各种原因。</p>
-
-<p>我比较推荐第三种（pessimistic）升级方式。</p>
-
-<p>先解释下<code>&gt;=1.4.2</code>、<code>~&gt;1.4.2</code>、<code>1.4.2</code>之间的区别：</p>
-
-<pre><code>gem ‘nokogiri’ #任何版本 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #任何大于等于1.4.2的版本 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #大于等于1.4.2并且小于1.5.0版本 (推荐）
-gem ‘nokogiri’, ‘~&gt;1.4’ #大于等于1.4.0并且小于2.0.0版本 
-gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2 
-</code></pre>
-
-<p>还要说明一下Ruby gem采用的<a href="http://semver.org/">Semantic Versioning</a></p>
-
-<p>还拿nokogiri 1.4.2为例：</p>
-
-<pre><code>1 → Major版本，在接口重构情况下Major Version会增加，API不一定向后兼容
-4 → Minor版本，在增加新特性情况下Minor Version会增加，并且 API保持向后兼容
-2 → Patch版本，在bug fix的情况下Patch Version会增加，并且API保持向后兼容
-</code></pre>
-
-<p>可见，使用第三种方式升级方便，不需要修改Gemfile，直接运行bundle update，所有的gem升级到最新，如果需要升级gem的主版本号才需要更改Gemfile。与第二种比较，优点是： 既不会出现API不兼容问题，又会及时升级到没有bug的版本。</p>
-
-<p>而指定版本号的方式需要知道最新版本是多少，并且一个一个的改版本号。增加了升级的复杂度。而实际上锁定版本号的项目几乎没人去升级…</p>
-
-<p>Bundler的FAQ也提到锁定版本号的缺点：<a href="http://gembundler.com/rationale.html">FAQ: Why Can’t I Just Specify Only = Dependencies?</a></p>
-
-<p>FAQ:</p>
-
-<p>问：gem作者不遵守semver规则怎么办？</p>
-
-<p>答：放弃使用他的gem！这也应该成为选择gem的衡量标准之一。曾经rubygems自己没有遵守这个规则，1.8.x系列修改了Public API导致大量gem安装出现问题。 Loren Segal 从rubygems fork出了<a href="http://gnuu.org/2011/06/01/slimgems-a-drop-in-replacement-for-rubygems/">SlimGems</a>，并且承诺长期维护和1.3.7兼容的API。</p>
-
-<p>问：如果升级Patch版本号真的出现问题了怎么办？</p>
-
-<p>答：哪个gem出问题了找到问题的原因解决问题，如果解决不了可以不升级那个gem</p>
-
-<p>本文转载过程中，稍作修改，原文地址：<a href="http://rubyeye.herokuapp.com/articles/27">http://rubyeye.herokuapp.com/articles/27</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[转]linux-编辑器-vi-emacs-grep-gawk-sed等]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/02/07/linux_editor/"/>
-    <updated>2012-02-07T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/02/07/linux_editor</id>
-    <content type="html"><![CDATA[<p>
+<div class="entry-content"><p>
     <span style="color:#6666CC"><strong><span style="font-size:18px">第１章：vi(vim) －visual editor (improve)</span></strong></span></p>
 
 
@@ -936,187 +818,160 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
 <p>
     转自csdn，原文<a href="http://blog.csdn.net/yourtommy/article/details/7236771#comments">链接</a></p>
 
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[加快网页加载速度方法之过滤广告]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads/"/>
-    <updated>2012-02-02T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads</id>
-    <content type="html"><![CDATA[<p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
-最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
-搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
-]]></content>
-  </entry>
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
   
-  <entry>
-    <title type="html"><![CDATA[多线程断点续传之下载]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/01/14/http_multithreads_download/"/>
-    <updated>2012-01-14T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/01/14/http_multithreads_download</id>
-    <content type="html"><![CDATA[<p>年底了，本该是个收官的时节，却因一个新项目搞得忙碌不堪，博客也一直无心顾及。这会儿忙里偷闲，正好整理整理最近的学习心得，也算做个年终总结吧。</p>
-
-<p>大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了，于是有心想了解一下这方面的知识。
-我一向推崇不知道就搜索，关于断点续传，网上有很多资料，其中有一篇<a href="http://www.wuzesheng.com/?p=1509">博文</a>总结的很不错，摘抄如下：</p>
-
-<h3>多线程下载</h3>
-
-<p>多线程下载的基本思想就是把要下载的文件按下载线程的个数N，划分为N块，每个线程负责下载一块。具体如何下载文件的块，不同的协议有点差别：</p>
-
-<ol>
-<li>Http多线程下载<br/>
-Http协议支持Range关键字，可以用Range来指定要下载的范围，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes)</li>
-</ol>
 
 
-<p>首500字节（字节位移0-499）</p>
-
-<pre><code>    Range: bytes=0-499
-</code></pre>
-
-<p>次500字节（字节位移500-999）</p>
-
-<pre><code>    Range: bytes=500-999
-</code></pre>
-
-<p>后500字节（字节位移1000-1499）</p>
-
-<pre><code>    Range: bytes=1000-1499，或者Range: bytes=1000-
-</code></pre>
-
-<p>需要注意，Http请求头中加了Range字段后，请求成功的状态码206(部分内容)，不再是200。</p>
-
-<ol>
-<li>Ftp多线程下载<br/>
-Ftp协议支持REST和RETR指令，可以用这两个指令来指定要下载起始位置，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes, 文件名为file)</li>
-</ol>
+<time datetime="2012-02-07T20:00:00+08:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+      
 
 
-<p>首500字节: 首先用REST 0设置从第0个字节开始下载，然后用 RETR file指定要下载的文件，启动数据接收，开始下载。<br/>
-次500字节和最后500字节的做法和上面一样，唯一的区别在于REST指定的起始位置不一样，次500字节为REST 500，最后500字节为REST 1000。</p>
-
-<p>需要注意，Ftp不能像Http那样，指定要下载的范围，只能指定要下载的起位置。因此，应用需要自己把握下载了多少个字节，比如说，要下载中间500个字节，用REST设置完起始位置，开始下载后，如果应用判断到接收的数据已大于等于500个字节，就需要停止下载。</p>
-
-<h3>断点续传</h3>
-
-<p>断点续传的基本思想就是记住上次连接断开时已经下载的字节数N，然后本次下载的时候，从第N+1个字节开始下载，如果读者朋友对第一部分中讲的多线程下载已经理解的话，那么如果进行断点续传便是水到渠成的事情，下面我只做简单的说明，假设已经下载的字节为N:</p>
-
-<pre><code>Http: Range: bytes=N- （注意字节位移是从0开始的，因此第N+1个字节的位移是N）
-Ftp: a. REST N, b.RETR file
-</code></pre>
-
-<p>这段文字先介绍了多线程下载的原理，然后是断点续传。在我看来，这两个原理是一样的。博文中除了提到了Http协议外，还讲了Ftp协议多线程断点续传。对于Ftp协议我了解不多，不作多谈。这段时间正好有个机会需要实现Http的多线程断点续传，说说我实现过程中的一些心得体会吧。</p>
-
-<p>能否断点续传，不是只要客户端说支持就可以的，还要服务器支持。在你请求下载文件时，服务器回应的报文中，如果Http header包含<code>Accept-Ranges: bytes</code>，就说明服务器支持按偏移下载文件，也就支持多线程断点续传了，当然多线程、断点续传都需要在客户端来实现。</p>
-
-<p>另外，<code>Accept-Ranges: bytes</code>中的bytes说明偏移的单位是bytes，不是KiloBytes，更不是MegaBytes。那么客户端怎么指点偏移呢？很简单，只要在下载请求报文的header中包含Range字段，具体格式：</p>
-
-<pre><code>Range: bytes=xxxx- 
-</code></pre>
-
-<p>这儿只指定了起始偏移，并未指定结束偏移，我用WireShark抓旋风的下载请求时，它就是使用这样的格式。不过，同事说，迅雷也指定了结束偏移，哪种用法更好，暂时我还没有结论。不过，我在实现过程中发现，如果一个完整的文件，分割成多块之后，每块只指定起始偏移，没有结束偏移，其效果跟指定结束偏移一样。还拿上面的1500bytes的文件来举例，三个线程下载，每个线程的请求报文的Range格式如下：</p>
-
-<pre><code>Range: bytes=0-
-Range: bytes=500-
-Range: bytes=1000-
-</code></pre>
-
-<p>使用此下载请求，最后每一个请求的回复都只读取到了500bytes的内容，跟我最开始认为的1500,1000,500不一样，我不知道这是后台服务器比较智能，将整个文件的下载统筹规划了一下，还是说Http协议本身就是这样规定的。不过，我猜测应该是前一种，虽然没有详细看过Http协议，但我觉得协议不太可能有这个规定。另外，我测试的后台服务器是Nginx，其他服务器是不是也这样，暂时未知。</p>
-
-<p>其实到此为止，我只说了续传的一半，续传中的另一半&#8211;上传还没有涉及，后面有空会再说说上传。</p>
-
-<p>PS:纠正一下关于Range的错误，如果只指定起始便宜，不指定终结偏移，则应该是默认从起始偏移到文件结尾。</p>
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[开博第一篇:部署Typo到Ｈeroku上]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/"/>
-    <updated>2012-01-05T20:00:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/01/05/deploy_blog_to_heroku_using_Typo</id>
-    <content type="html"><![CDATA[<p>最近一直在折腾自己的私人博客，花了几天时间在自己机器上把<a href="https://github.com/fdv/typo">Typo</a>跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机<a href="http://www.heroku.com" title="">Heroku</a>做的很不错，就它了。</p>
-
-<p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
-
-<ol>
-<li><p>获取源码<br/>
-下载最新的Typo的<a href="https://github.com/fdv/typo.git">源码</a></p>
-
-<pre><code> git clone https://github.com/fdv/typo.git
-</code></pre></li>
-<li><p>在config/目录下新建文件preinitializer.rb，文件内容如下（防止写文件）</p>
-
-<pre><code> require fileutils
- file_utils_no_write = FileUtils::NoWrite
- Object.send :remove_const, :FileUtils
- FileUtils = file_utils_no_write
-</code></pre></li>
-<li><p>修改<code>vendor/plugins/easy-ckeditor/init.rb</code>，注释掉两行代码（<em>这个很重要，防止ckeditor写文件造成网站崩溃</em>）</p>
-
-<pre><code> require ckeditor_file_utils
- #CkeditorFileUtils.check_and_install
-</code></pre></li>
-<li><p>修改config/enviroments/production.rb文件（之前存在侥幸心理，没有修改这一行，事实证明是不行的）</p>
-
-<pre><code> config.action_controller.perform_caching = false
-</code></pre></li>
-<li><p>修改数据库配置文件config/database.yml.example，重命名为database.yml。
-可以在配置文件中指定要连接的数据库，默认是typo_dev，指定方法：database：yourdatabase
-Typo默认使用mysql作为本地数据库，heroku默认使用postgresql作为服务端数据库，可以同步，<em>但会出现中文乱码导致网站崩溃</em>。<br/>
-解决方法：换用<code>mysql2(0.2.18)</code> gem（在Gemfile中修改）<br/>
-先安装taps：</p>
-
-<pre><code> gem install taps
-</code></pre>
-
-上传：
-
-<pre><code> heroku db:push mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
-</code></pre>
-
-下载：
-
-<pre><code> heroku db:pull mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
-</code></pre></li>
-<li><p>修改Gemfile<br/>
-Typo使用了一个比较灵活的Gemfile，可以在多个数据库adapter中选择一个，同时还支持debug。这些我都不需要，同时ruby-debug19在rvm下也无法编译通过，缺少头文件，所以我简化了一下Gemfile
-主要修改如下：<br/>
-修改source：<code>source http://ruby.taobao.org</code><br/>
-添加gem：<code>gem mysql2,0.2.18</code>，解决中文乱码导致网站崩溃问题，最新的mysql2是配合rails3.1.x的，3.0.x只能使用0.2.x，得从rubygems上下载<br/>
-修改gem：<code>gem factory_girl</code>，去掉指定版本，taobao中无法下载老版本的gem包<br/>
-删除ruby-debug19，缺少头文件，无法编译过<br/>
-执行<code>bundle install</code>，生成Gemfile.lock文件</p></li>
-<li><p>执行本地数据迁移任务<br/>
-<code>rake db:migrate RAILS_ENV=production</code><br/>
-生成了三个文件（这个不重要，我是一股脑儿把所有文件都加入git库了）</p>
-
-<blockquote><p>db/schema.rb<br/>
-log/production.log<br/>
-public/javascripts/ckeditor/config.js</p></blockquote></li>
-<li><p>创建本地git版本库,将所有文件都添加到版本库中，特别注意有没有public/files/和tmp/cache/文件夹。这个好像与之前部署失败有关，最好在这两个文件夹下面都建立一个.gitkeep文件（<em>与崩溃有关系</em>）</p>
-
-<pre><code> mkdir -p public/files tmp/cache
- touch public/files/.gitkeep tmp/cache/.gitkeep
- git add -f public/files/.gitkeep tmp/cache/.gitkeep
-</code></pre></li>
-<li><p>部署到Heroku上</p>
-
-<pre><code> heroku create yourwebname
- git push heroku master
- heroku rake db:migrate
-</code></pre>
-
-<p>执行到最后一个数据迁移任务103_really_update_existing_articles_with_nil_or_empty_post_type.rb时会失败，这个好像没啥影响</p></li>
-<li><p>大功告成，赶快浏览下吧</p>
-
-<pre><code>heroku open
-</code></pre>
-
-<p>或者手动输入URL: http://yourwebname.heroku.com</p></li>
-</ol>
-
-]]></content>
-  </entry>
   
-</feed>
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/02/access_website_bypass_ads/" title="Previous Post: 加快网页加载速度方法之过滤广告">&laquo; 加快网页加载速度方法之过滤广告</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/12/update_ruby_project/" title="Next Post: [转]如何优雅的升级ruby项目">[转]如何优雅的升级ruby项目 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/12/update_ruby_project/">[转]如何优雅的升级ruby项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/07/linux_editor/">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/ensonmj">@ensonmj</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'ensonmj',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

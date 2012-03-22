@@ -5,14 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Blog Archive - TechToy</title>
+  <title>加快网页加载速度方法之过滤广告 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="Blog Archive 2012 彻底解决WebRequest的GetResponse阻塞问题
-Feb 16 2012 [转]如何优雅的升级ruby项目
-Feb 12 2012 [转]linux-编辑器-vi-emacs-grep-gawk-sed等
-Feb 07 2012 &hellip;">
+  <meta name="description" content="自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
+最近发现访问newsmth.net就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是pagead2. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,7 +19,7 @@ Feb 07 2012 &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/archives">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -66,81 +64,82 @@ Feb 07 2012 &hellip;">
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Blog Archive</h1>
+    
+      <h1 class="entry-title">加快网页加载速度方法之过滤广告</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives">
 
 
-
-  
-  <h2>2012</h2>
-
-<article>
-  
-<h1><a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a></h1>
-<time datetime="2012-02-16T20:00:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>16</span> <span class='year'>2012</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/02/12/update_ruby_project/">[转]如何优雅的升级ruby项目</a></h1>
-<time datetime="2012-02-12T20:00:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>12</span> <span class='year'>2012</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/02/07/linux_editor/">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</a></h1>
-<time datetime="2012-02-07T20:00:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>07</span> <span class='year'>2012</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a></h1>
-<time datetime="2012-02-02T20:00:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>02</span> <span class='year'>2012</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a></h1>
-<time datetime="2012-01-14T20:00:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>14</span> <span class='year'>2012</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/">开博第一篇:部署Typo到Ｈeroku上</a></h1>
-<time datetime="2012-01-05T20:00:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>05</span> <span class='year'>2012</span></time>
-
-
-</article>
-
+<div class="entry-content"><p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
+最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
+搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/14/http_multithreads_download/" title="Previous Post: 多线程断点续传之下载">&laquo; 多线程断点续传之下载</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/07/linux_editor/" title="Next Post: [转]linux-编辑器-vi-emacs-grep-gawk-sed等">[转]linux-编辑器-vi-emacs-grep-gawk-sed等 &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
 
 </div>

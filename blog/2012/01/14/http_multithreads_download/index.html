@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>多线程断点续传之下载 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="年底了，本该是个收官的时节，却因一个新项目搞得忙碌不堪，博客也一直无心顾及。这会儿忙里偷闲，正好整理整理最近的学习心得，也算做个年终总结吧。 大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/01/14/http_multithreads_download">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">多线程断点续传之下载</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-14T20:00:00+08:00" pubdate data-updated="true">Jan 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>年底了，本该是个收官的时节，却因一个新项目搞得忙碌不堪，博客也一直无心顾及。这会儿忙里偷闲，正好整理整理最近的学习心得，也算做个年终总结吧。</p>
+
+<p>大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了，于是有心想了解一下这方面的知识。
+我一向推崇不知道就搜索，关于断点续传，网上有很多资料，其中有一篇<a href="http://www.wuzesheng.com/?p=1509">博文</a>总结的很不错，摘抄如下：</p>
+
+<h3>多线程下载</h3>
+
+<p>多线程下载的基本思想就是把要下载的文件按下载线程的个数N，划分为N块，每个线程负责下载一块。具体如何下载文件的块，不同的协议有点差别：</p>
+
+<ol>
+<li>Http多线程下载<br/>
+Http协议支持Range关键字，可以用Range来指定要下载的范围，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes)</li>
+</ol>
+
+
+<p>首500字节（字节位移0-499）</p>
+
+<pre><code>    Range: bytes=0-499
+</code></pre>
+
+<p>次500字节（字节位移500-999）</p>
+
+<pre><code>    Range: bytes=500-999
+</code></pre>
+
+<p>后500字节（字节位移1000-1499）</p>
+
+<pre><code>    Range: bytes=1000-1499，或者Range: bytes=1000-
+</code></pre>
+
+<p>需要注意，Http请求头中加了Range字段后，请求成功的状态码206(部分内容)，不再是200。</p>
+
+<ol>
+<li>Ftp多线程下载<br/>
+Ftp协议支持REST和RETR指令，可以用这两个指令来指定要下载起始位置，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes, 文件名为file)</li>
+</ol>
+
+
+<p>首500字节: 首先用REST 0设置从第0个字节开始下载，然后用 RETR file指定要下载的文件，启动数据接收，开始下载。<br/>
+次500字节和最后500字节的做法和上面一样，唯一的区别在于REST指定的起始位置不一样，次500字节为REST 500，最后500字节为REST 1000。</p>
+
+<p>需要注意，Ftp不能像Http那样，指定要下载的范围，只能指定要下载的起位置。因此，应用需要自己把握下载了多少个字节，比如说，要下载中间500个字节，用REST设置完起始位置，开始下载后，如果应用判断到接收的数据已大于等于500个字节，就需要停止下载。</p>
+
+<h3>断点续传</h3>
+
+<p>断点续传的基本思想就是记住上次连接断开时已经下载的字节数N，然后本次下载的时候，从第N+1个字节开始下载，如果读者朋友对第一部分中讲的多线程下载已经理解的话，那么如果进行断点续传便是水到渠成的事情，下面我只做简单的说明，假设已经下载的字节为N:</p>
+
+<pre><code>Http: Range: bytes=N- （注意字节位移是从0开始的，因此第N+1个字节的位移是N）
+Ftp: a. REST N, b.RETR file
+</code></pre>
+
+<p>这段文字先介绍了多线程下载的原理，然后是断点续传。在我看来，这两个原理是一样的。博文中除了提到了Http协议外，还讲了Ftp协议多线程断点续传。对于Ftp协议我了解不多，不作多谈。这段时间正好有个机会需要实现Http的多线程断点续传，说说我实现过程中的一些心得体会吧。</p>
+
+<p>能否断点续传，不是只要客户端说支持就可以的，还要服务器支持。在你请求下载文件时，服务器回应的报文中，如果Http header包含<code>Accept-Ranges: bytes</code>，就说明服务器支持按偏移下载文件，也就支持多线程断点续传了，当然多线程、断点续传都需要在客户端来实现。</p>
+
+<p>另外，<code>Accept-Ranges: bytes</code>中的bytes说明偏移的单位是bytes，不是KiloBytes，更不是MegaBytes。那么客户端怎么指点偏移呢？很简单，只要在下载请求报文的header中包含Range字段，具体格式：</p>
+
+<pre><code>Range: bytes=xxxx- 
+</code></pre>
+
+<p>这儿只指定了起始偏移，并未指定结束偏移，我用WireShark抓旋风的下载请求时，它就是使用这样的格式。不过，同事说，迅雷也指定了结束偏移，哪种用法更好，暂时我还没有结论。不过，我在实现过程中发现，如果一个完整的文件，分割成多块之后，每块只指定起始偏移，没有结束偏移，其效果跟指定结束偏移一样。还拿上面的1500bytes的文件来举例，三个线程下载，每个线程的请求报文的Range格式如下：</p>
+
+<pre><code>Range: bytes=0-
+Range: bytes=500-
+Range: bytes=1000-
+</code></pre>
+
+<p>使用此下载请求，最后每一个请求的回复都只读取到了500bytes的内容，跟我最开始认为的1500,1000,500不一样，我不知道这是后台服务器比较智能，将整个文件的下载统筹规划了一下，还是说Http协议本身就是这样规定的。不过，我猜测应该是前一种，虽然没有详细看过Http协议，但我觉得协议不太可能有这个规定。另外，我测试的后台服务器是Nginx，其他服务器是不是也这样，暂时未知。</p>
+
+<p>其实到此为止，我只说了续传的一半，续传中的另一半&#8211;上传还没有涉及，后面有空会再说说上传。</p>
+
+<p>PS:纠正一下关于Range的错误，如果只指定起始便宜，不指定终结偏移，则应该是默认从起始偏移到文件结尾。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-14T20:00:00+08:00" pubdate data-updated="true">Jan 14<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/" title="Previous Post: 开博第一篇:部署Typo到Ｈeroku上">&laquo; 开博第一篇:部署Typo到Ｈeroku上</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/02/access_website_bypass_ads/" title="Next Post: 加快网页加载速度方法之过滤广告">加快网页加载速度方法之过滤广告 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/12/update_ruby_project/">[转]如何优雅的升级ruby项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/07/linux_editor/">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/ensonmj">@ensonmj</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'ensonmj',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

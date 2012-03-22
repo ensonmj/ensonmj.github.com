@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[转]如何优雅的升级ruby项目 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。 但是从最近的一个帖子发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种: optimistic[ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/12/update_ruby_project">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[转]如何优雅的升级ruby项目</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-12T20:00:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。</p>
+
+<p>但是从最近的一个<a href="http://ruby-china.org/topics/172">帖子</a>发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种:</p>
+
+<pre><code>optimistic[乐观]
+pessimistic[悲观]
+super pessimistic[超级悲观]
+</code></pre>
+
+<p>以nokogiri这个gem为例：</p>
+
+<pre><code>gem ‘nokogiri’ #optimistic 
+gem ‘nokogiri’, ‘&gt;=1.4.2’ #optimistic 
+gem ‘nokogiri’, ‘~&gt;1.4.2’ #pessimistic 
+gem ‘nokogiri’, ‘~&gt;1.4’ #pessimistic 
+gem ‘nokogiri’, ‘1.4.2’ # super pessimistic 
+</code></pre>
+
+<p>第一种方式很少人采用，因为一旦升级很容易因为API不兼容导致你的项目爆掉。</p>
+
+<p>主要分歧在第二种和第三种。选择第三种方案（super pessimistic）的观点通常是锁定版本号稳定，升级会带来麻烦，以前升级出现过问题，求稳等各种原因。</p>
+
+<p>我比较推荐第三种（pessimistic）升级方式。</p>
+
+<p>先解释下<code>&gt;=1.4.2</code>、<code>~&gt;1.4.2</code>、<code>1.4.2</code>之间的区别：</p>
+
+<pre><code>gem ‘nokogiri’ #任何版本 
+gem ‘nokogiri’, ‘&gt;=1.4.2’ #任何大于等于1.4.2的版本 
+gem ‘nokogiri’, ‘~&gt;1.4.2’ #大于等于1.4.2并且小于1.5.0版本 (推荐）
+gem ‘nokogiri’, ‘~&gt;1.4’ #大于等于1.4.0并且小于2.0.0版本 
+gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2 
+</code></pre>
+
+<p>还要说明一下Ruby gem采用的<a href="http://semver.org/">Semantic Versioning</a></p>
+
+<p>还拿nokogiri 1.4.2为例：</p>
+
+<pre><code>1 → Major版本，在接口重构情况下Major Version会增加，API不一定向后兼容
+4 → Minor版本，在增加新特性情况下Minor Version会增加，并且 API保持向后兼容
+2 → Patch版本，在bug fix的情况下Patch Version会增加，并且API保持向后兼容
+</code></pre>
+
+<p>可见，使用第三种方式升级方便，不需要修改Gemfile，直接运行bundle update，所有的gem升级到最新，如果需要升级gem的主版本号才需要更改Gemfile。与第二种比较，优点是： 既不会出现API不兼容问题，又会及时升级到没有bug的版本。</p>
+
+<p>而指定版本号的方式需要知道最新版本是多少，并且一个一个的改版本号。增加了升级的复杂度。而实际上锁定版本号的项目几乎没人去升级…</p>
+
+<p>Bundler的FAQ也提到锁定版本号的缺点：<a href="http://gembundler.com/rationale.html">FAQ: Why Can’t I Just Specify Only = Dependencies?</a></p>
+
+<p>FAQ:</p>
+
+<p>问：gem作者不遵守semver规则怎么办？</p>
+
+<p>答：放弃使用他的gem！这也应该成为选择gem的衡量标准之一。曾经rubygems自己没有遵守这个规则，1.8.x系列修改了Public API导致大量gem安装出现问题。 Loren Segal 从rubygems fork出了<a href="http://gnuu.org/2011/06/01/slimgems-a-drop-in-replacement-for-rubygems/">SlimGems</a>，并且承诺长期维护和1.3.7兼容的API。</p>
+
+<p>问：如果升级Patch版本号真的出现问题了怎么办？</p>
+
+<p>答：哪个gem出问题了找到问题的原因解决问题，如果解决不了可以不升级那个gem</p>
+
+<p>本文转载过程中，稍作修改，原文地址：<a href="http://rubyeye.herokuapp.com/articles/27">http://rubyeye.herokuapp.com/articles/27</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-12T20:00:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/07/linux_editor/" title="Previous Post: [转]linux-编辑器-vi-emacs-grep-gawk-sed等">&laquo; [转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/16/webrequest_getresponse_block/" title="Next Post: 彻底解决WebRequest的GetResponse阻塞问题">彻底解决WebRequest的GetResponse阻塞问题 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/12/update_ruby_project/">[转]如何优雅的升级ruby项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/07/linux_editor/">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/ensonmj">@ensonmj</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'ensonmj',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

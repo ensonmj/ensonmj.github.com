@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>开博第一篇:部署Typo到Ｈeroku上 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="最近一直在折腾自己的私人博客，花了几天时间在自己机器上把Typo跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机Heroku做的很不错，就它了。 本以为很容易就可以搞定的事， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/01/05/deploy_blog_to_heroku_using_Typo">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">开博第一篇:部署Typo到Ｈeroku上</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-05T20:00:00+08:00" pubdate data-updated="true">Jan 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>最近一直在折腾自己的私人博客，花了几天时间在自己机器上把<a href="https://github.com/fdv/typo">Typo</a>跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机<a href="http://www.heroku.com" title="">Heroku</a>做的很不错，就它了。</p>
+
+<p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
+
+<ol>
+<li><p>获取源码<br/>
+下载最新的Typo的<a href="https://github.com/fdv/typo.git">源码</a></p>
+
+<pre><code> git clone https://github.com/fdv/typo.git
+</code></pre></li>
+<li><p>在config/目录下新建文件preinitializer.rb，文件内容如下（防止写文件）</p>
+
+<pre><code> require fileutils
+ file_utils_no_write = FileUtils::NoWrite
+ Object.send :remove_const, :FileUtils
+ FileUtils = file_utils_no_write
+</code></pre></li>
+<li><p>修改<code>vendor/plugins/easy-ckeditor/init.rb</code>，注释掉两行代码（<em>这个很重要，防止ckeditor写文件造成网站崩溃</em>）</p>
+
+<pre><code> require ckeditor_file_utils
+ #CkeditorFileUtils.check_and_install
+</code></pre></li>
+<li><p>修改config/enviroments/production.rb文件（之前存在侥幸心理，没有修改这一行，事实证明是不行的）</p>
+
+<pre><code> config.action_controller.perform_caching = false
+</code></pre></li>
+<li><p>修改数据库配置文件config/database.yml.example，重命名为database.yml。
+可以在配置文件中指定要连接的数据库，默认是typo_dev，指定方法：database：yourdatabase
+Typo默认使用mysql作为本地数据库，heroku默认使用postgresql作为服务端数据库，可以同步，<em>但会出现中文乱码导致网站崩溃</em>。<br/>
+解决方法：换用<code>mysql2(0.2.18)</code> gem（在Gemfile中修改）<br/>
+先安装taps：</p>
+
+<pre><code> gem install taps
+</code></pre>
+
+上传：
+
+<pre><code> heroku db:push mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
+</code></pre>
+
+下载：
+
+<pre><code> heroku db:pull mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
+</code></pre></li>
+<li><p>修改Gemfile<br/>
+Typo使用了一个比较灵活的Gemfile，可以在多个数据库adapter中选择一个，同时还支持debug。这些我都不需要，同时ruby-debug19在rvm下也无法编译通过，缺少头文件，所以我简化了一下Gemfile
+主要修改如下：<br/>
+修改source：<code>source http://ruby.taobao.org</code><br/>
+添加gem：<code>gem mysql2,0.2.18</code>，解决中文乱码导致网站崩溃问题，最新的mysql2是配合rails3.1.x的，3.0.x只能使用0.2.x，得从rubygems上下载<br/>
+修改gem：<code>gem factory_girl</code>，去掉指定版本，taobao中无法下载老版本的gem包<br/>
+删除ruby-debug19，缺少头文件，无法编译过<br/>
+执行<code>bundle install</code>，生成Gemfile.lock文件</p></li>
+<li><p>执行本地数据迁移任务<br/>
+<code>rake db:migrate RAILS_ENV=production</code><br/>
+生成了三个文件（这个不重要，我是一股脑儿把所有文件都加入git库了）</p>
+
+<blockquote><p>db/schema.rb<br/>
+log/production.log<br/>
+public/javascripts/ckeditor/config.js</p></blockquote></li>
+<li><p>创建本地git版本库,将所有文件都添加到版本库中，特别注意有没有public/files/和tmp/cache/文件夹。这个好像与之前部署失败有关，最好在这两个文件夹下面都建立一个.gitkeep文件（<em>与崩溃有关系</em>）</p>
+
+<pre><code> mkdir -p public/files tmp/cache
+ touch public/files/.gitkeep tmp/cache/.gitkeep
+ git add -f public/files/.gitkeep tmp/cache/.gitkeep
+</code></pre></li>
+<li><p>部署到Heroku上</p>
+
+<pre><code> heroku create yourwebname
+ git push heroku master
+ heroku rake db:migrate
+</code></pre>
+
+<p>执行到最后一个数据迁移任务103_really_update_existing_articles_with_nil_or_empty_post_type.rb时会失败，这个好像没啥影响</p></li>
+<li><p>大功告成，赶快浏览下吧</p>
+
+<pre><code>heroku open
+</code></pre>
+
+<p>或者手动输入URL: http://yourwebname.heroku.com</p></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-05T20:00:00+08:00" pubdate data-updated="true">Jan 5<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/01/14/http_multithreads_download/" title="Next Post: 多线程断点续传之下载">多线程断点续传之下载 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/12/update_ruby_project/">[转]如何优雅的升级ruby项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/07/linux_editor/">[转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/ensonmj">@ensonmj</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'ensonmj',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
