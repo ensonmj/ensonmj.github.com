@@ -1,0 +1,62 @@
+---
+layout: post
+title: "[转]如何优雅的升级ruby项目"
+date: 2012-02-12 20:00
+comments: true
+categories: 
+---
+一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。
+
+但是从最近的一个[帖子](http://ruby-china.org/topics/172)发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种:
+
+    optimistic[乐观]
+    pessimistic[悲观]
+    super pessimistic[超级悲观]
+
+以nokogiri这个gem为例：
+
+    gem ‘nokogiri’ #optimistic 
+    gem ‘nokogiri’, ‘>=1.4.2’ #optimistic 
+    gem ‘nokogiri’, ‘~>1.4.2’ #pessimistic 
+    gem ‘nokogiri’, ‘~>1.4’ #pessimistic 
+    gem ‘nokogiri’, ‘1.4.2’ # super pessimistic 
+
+第一种方式很少人采用，因为一旦升级很容易因为API不兼容导致你的项目爆掉。
+
+主要分歧在第二种和第三种。选择第三种方案（super pessimistic）的观点通常是锁定版本号稳定，升级会带来麻烦，以前升级出现过问题，求稳等各种原因。
+
+我比较推荐第三种（pessimistic）升级方式。
+
+先解释下`>=1.4.2`、`~>1.4.2`、`1.4.2`之间的区别：
+
+    gem ‘nokogiri’ #任何版本 
+    gem ‘nokogiri’, ‘>=1.4.2’ #任何大于等于1.4.2的版本 
+    gem ‘nokogiri’, ‘~>1.4.2’ #大于等于1.4.2并且小于1.5.0版本 (推荐）
+    gem ‘nokogiri’, ‘~>1.4’ #大于等于1.4.0并且小于2.0.0版本 
+    gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2 
+
+还要说明一下Ruby gem采用的[Semantic Versioning](http://semver.org/)
+
+还拿nokogiri 1.4.2为例：
+
+    1 → Major版本，在接口重构情况下Major Version会增加，API不一定向后兼容
+    4 → Minor版本，在增加新特性情况下Minor Version会增加，并且 API保持向后兼容
+    2 → Patch版本，在bug fix的情况下Patch Version会增加，并且API保持向后兼容
+
+可见，使用第三种方式升级方便，不需要修改Gemfile，直接运行bundle update，所有的gem升级到最新，如果需要升级gem的主版本号才需要更改Gemfile。与第二种比较，优点是： 既不会出现API不兼容问题，又会及时升级到没有bug的版本。
+
+而指定版本号的方式需要知道最新版本是多少，并且一个一个的改版本号。增加了升级的复杂度。而实际上锁定版本号的项目几乎没人去升级…
+
+Bundler的FAQ也提到锁定版本号的缺点：[FAQ: Why Can’t I Just Specify Only = Dependencies?](http://gembundler.com/rationale.html)
+
+FAQ:
+
+问：gem作者不遵守semver规则怎么办？
+
+答：放弃使用他的gem！这也应该成为选择gem的衡量标准之一。曾经rubygems自己没有遵守这个规则，1.8.x系列修改了Public API导致大量gem安装出现问题。 Loren Segal 从rubygems fork出了[SlimGems](http://gnuu.org/2011/06/01/slimgems-a-drop-in-replacement-for-rubygems/)，并且承诺长期维护和1.3.7兼容的API。
+
+问：如果升级Patch版本号真的出现问题了怎么办？
+
+答：哪个gem出问题了找到问题的原因解决问题，如果解决不了可以不升级那个gem
+
+本文转载过程中，稍作修改，原文地址：<http://rubyeye.herokuapp.com/articles/27>
