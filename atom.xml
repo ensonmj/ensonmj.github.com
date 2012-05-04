@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-03-22T23:31:19+08:00</updated>
+  <updated>2012-05-04T22:59:59+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,55 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Arch HDMI 声音输出]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/"/>
+    <updated>2012-05-04T22:36:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu</id>
+    <content type="html"><![CDATA[<p>最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。</p>
+
+<!--more-->
+
+
+<p>按照Arch Wiki上有关<a href="https://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture">ALSA</a>和<a href="https://wiki.archlinux.org/index.php/PulseAudio">PulseAudio</a>的说明跑了一遍，电脑上现有的声音输出设备如下：</p>
+
+<pre><code>$aplay -l
+**** List of PLAYBACK Hardware Devices ****　
+card 0: NVidia [HDA NVidia], device 3: HDMI 0 &gt; [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 7: HDMI 0 &gt; [HDMI 0]
+  Subdevices: 0/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 8: HDMI 0 &gt; [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 9: HDMI 0 &gt; [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: PCH [HDA Intel PCH], device 0: ALC889 &gt; Analog [ALC889 Analog]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: PCH [HDA Intel PCH], device 1: ALC889 &gt; Digital [ALC889 Digital]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+</code></pre>
+
+<p>然后测试哪个能输出声音，我的显卡是card 0,device 7能真正的输出声音。</p>
+
+<pre><code>$aplay -D plughw:0,7 /usr/share/sounds/alsa/Noise.wav 
+Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono
+</code></pre>
+
+<p>到这儿说明硬件都没有问题，但为什么默认不能使用呢？后来搜索到问题的原因：PulseAudio默认只会创建一个HDMI的输出设备,具体到我的电脑对应于card 0,device 3,所以无法听到声音。最终的解决办法是编辑<code>/etc/pulse/default.pa</code>文件，找到相应的加载模块的地方，添加一行：</p>
+
+<pre><code>load-module module-alsa-sink device=hw:0,7
+</code></pre>
+
+<p>OK,大喇叭开始广播啦</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[彻底解决WebRequest的GetResponse阻塞问题]]></title>
@@ -36,6 +85,11 @@ catch(WebException ex)
 }
 
 </code></pre></noscript></div>
+
+
+
+
+<!--more-->
 
 
 <p>第二版</p>
@@ -150,6 +204,9 @@ pessimistic[悲观]
 super pessimistic[超级悲观]
 </code></pre>
 
+<!--more-->
+
+
 <p>以nokogiri这个gem为例：</p>
 
 <pre><code>gem ‘nokogiri’ #optimistic 
@@ -224,6 +281,9 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
 
 <p>
     vi的三种工作模式：命令模式（也称普通模式)、插入模式与末行模式（命令模式下输入:后进入）。</p>
+
+
+<!--more-->
 
 
 <p>
@@ -960,6 +1020,11 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
 <p>大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了，于是有心想了解一下这方面的知识。
 我一向推崇不知道就搜索，关于断点续传，网上有很多资料，其中有一篇<a href="http://www.wuzesheng.com/?p=1509">博文</a>总结的很不错，摘抄如下：</p>
 
+<!--more-->
+
+
+<p></p>
+
 <h3>多线程下载</h3>
 
 <p>多线程下载的基本思想就是把要下载的文件按下载线程的个数N，划分为N块，每个线程负责下载一块。具体如何下载文件的块，不同的协议有点差别：</p>
@@ -1038,6 +1103,9 @@ Range: bytes=1000-
     <content type="html"><![CDATA[<p>最近一直在折腾自己的私人博客，花了几天时间在自己机器上把<a href="https://github.com/fdv/typo">Typo</a>跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机<a href="http://www.heroku.com" title="">Heroku</a>做的很不错，就它了。</p>
 
 <p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
+
+<!--more-->
+
 
 <ol>
 <li><p>获取源码<br/>

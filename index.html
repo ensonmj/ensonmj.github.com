@@ -9,13 +9,7 @@
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="第一版 //第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{ WebResponse res = wr.GetResponse(); /* * do something */
-}
-catch(WebException ex)
-{ &hellip;">
+  <meta name="description" content="最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。 ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +70,47 @@ catch(WebException ex)
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/">Arch HDMI 声音输出</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-04T22:36:00+08:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a></h1>
     
     
@@ -119,103 +154,14 @@ catch(WebException ex)
 </code></pre></noscript></div>
 
 
-<p>第二版</p>
-
-<div><script src='https://gist.github.com/1844755.js?file=WebResponse_block_second.cs'></script>
-<noscript><pre><code>//第二版，只释放了response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-}
-catch(WebException ex)
-{
-  res.Close();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-<p>第三版</p>
-
-<div><script src='https://gist.github.com/1844761.js?file=WebResponse_block_third.cs'></script>
-<noscript><pre><code>//正确释放request和response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}
-</code></pre></noscript></div>
-
-
-<p>第四版</p>
-
-<div><script src='https://gist.github.com/1844774.js?file=WebResponse_block_fourth.cs'></script>
-<noscript><pre><code>//代理走不通的情况下，会导致导致阻塞
-WebRequest wr = WebRequest.Create(URL);
-//Proxy may block the http request
-wr.Proxy = null;
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-<p>第五版</p>
-
-<div><script src='https://gist.github.com/1844796.js?file=WebResponse_block_fifth.cs'></script>
-<noscript><pre><code>//多线程并发时，默认最多只能建立两个持久连接，后续请求也会阻塞，
-//增大默认连接数限制可解决此问题
-
-//C#默认只允许两个持久连接，http协议的RFC文档也有此建议
-System.Net.ServicePointManager.DefaultConnectionLimit = 256;
-
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
 
 
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/16/webrequest_getresponse_block/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -258,58 +204,12 @@ pessimistic[悲观]
 super pessimistic[超级悲观]
 </code></pre>
 
-<p>以nokogiri这个gem为例：</p>
-
-<pre><code>gem ‘nokogiri’ #optimistic 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #optimistic 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #pessimistic 
-gem ‘nokogiri’, ‘~&gt;1.4’ #pessimistic 
-gem ‘nokogiri’, ‘1.4.2’ # super pessimistic 
-</code></pre>
-
-<p>第一种方式很少人采用，因为一旦升级很容易因为API不兼容导致你的项目爆掉。</p>
-
-<p>主要分歧在第二种和第三种。选择第三种方案（super pessimistic）的观点通常是锁定版本号稳定，升级会带来麻烦，以前升级出现过问题，求稳等各种原因。</p>
-
-<p>我比较推荐第三种（pessimistic）升级方式。</p>
-
-<p>先解释下<code>&gt;=1.4.2</code>、<code>~&gt;1.4.2</code>、<code>1.4.2</code>之间的区别：</p>
-
-<pre><code>gem ‘nokogiri’ #任何版本 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #任何大于等于1.4.2的版本 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #大于等于1.4.2并且小于1.5.0版本 (推荐）
-gem ‘nokogiri’, ‘~&gt;1.4’ #大于等于1.4.0并且小于2.0.0版本 
-gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2 
-</code></pre>
-
-<p>还要说明一下Ruby gem采用的<a href="http://semver.org/">Semantic Versioning</a></p>
-
-<p>还拿nokogiri 1.4.2为例：</p>
-
-<pre><code>1 → Major版本，在接口重构情况下Major Version会增加，API不一定向后兼容
-4 → Minor版本，在增加新特性情况下Minor Version会增加，并且 API保持向后兼容
-2 → Patch版本，在bug fix的情况下Patch Version会增加，并且API保持向后兼容
-</code></pre>
-
-<p>可见，使用第三种方式升级方便，不需要修改Gemfile，直接运行bundle update，所有的gem升级到最新，如果需要升级gem的主版本号才需要更改Gemfile。与第二种比较，优点是： 既不会出现API不兼容问题，又会及时升级到没有bug的版本。</p>
-
-<p>而指定版本号的方式需要知道最新版本是多少，并且一个一个的改版本号。增加了升级的复杂度。而实际上锁定版本号的项目几乎没人去升级…</p>
-
-<p>Bundler的FAQ也提到锁定版本号的缺点：<a href="http://gembundler.com/rationale.html">FAQ: Why Can’t I Just Specify Only = Dependencies?</a></p>
-
-<p>FAQ:</p>
-
-<p>问：gem作者不遵守semver规则怎么办？</p>
-
-<p>答：放弃使用他的gem！这也应该成为选择gem的衡量标准之一。曾经rubygems自己没有遵守这个规则，1.8.x系列修改了Public API导致大量gem安装出现问题。 Loren Segal 从rubygems fork出了<a href="http://gnuu.org/2011/06/01/slimgems-a-drop-in-replacement-for-rubygems/">SlimGems</a>，并且承诺长期维护和1.3.7兼容的API。</p>
-
-<p>问：如果升级Patch版本号真的出现问题了怎么办？</p>
-
-<p>答：哪个gem出问题了找到问题的原因解决问题，如果解决不了可以不升级那个gem</p>
-
-<p>本文转载过程中，稍作修改，原文地址：<a href="http://rubyeye.herokuapp.com/articles/27">http://rubyeye.herokuapp.com/articles/27</a></p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/12/update_ruby_project/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -361,718 +261,12 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
     vi的三种工作模式：命令模式（也称普通模式)、插入模式与末行模式（命令模式下输入:后进入）。</p>
 
 
-<p>
-    <span style="font-size:16px"><strong>命令模式下的命令</strong></span>：</p>
-
-
-<p>
-    i：在当前光标插入文本；<br />
-    I：在所在行行首插入文本；<br />
-    a：在当前光标后添加文本；<br />
-    A：在当前行尾添加文本；</p>
-
-
-<p>
-    k、方向键上：光标上移；<br />
-    j、方向键下：光标下移；<br />
-    -：光标到上一行的行首；<br />
-    +：光标到下一行的行首；<br />
-    h、Backspace、方向键左：光标左移；<br />
-    l、Space、方向键右：光标右移；<br />
-    0、^：光标到行首；<br />
-    $：光标到行尾；<br />
-    w：光标移到下一单词，标点符号视为单独一个单词；<br />
-    Ｗ：与w相似，标点符号视为单词的一部分，以空格为分隔；<br />
-    b：光标移到上一个单词；<br />
-    B：与b相似，只以空格为间隔，无视标点符号；<br />
-    e：光标移到当前单词末；<br />
-    E：与e相似，无视标点符号；<br />
-    (：光标移到上一个句子的开始；<br />
-    )：光标移到下一个句子的开始；<br />
-    {：光标移到上一段落的开始；<br />
-    }：光标移到下一段落的开始；<br />
-    H：光标移到屏幕顶部第一行的最左端；<br />
-    M：光标移到屏幕中间；<br />
-    L：光标移到屏幕的尾部。</p>
-
-
-<p>
-    x、dl：删除当前字符；<br />
-    X：删除当前光标左侧字符；<br />
-    d0：从行的开始处删除；<br />
-    D、d$：删除到行的末尾；<br />
-    d^：从行开始的第1个字符开始删除（不包括空格和TAB）；<br />
-    dw：删除到单词的末尾；<br />
-    d5w：删除到第5个单词的末尾；<br />
-    dtc：删除到当前行字符c的下一次出现；<br />
-    dfc：删除到当前行字符c的下一次出现（包括c）；<br />
-    d/word：删除到单词word的下一次出现；<br />
-    d3{：从前面的第3段删除到当前位置；<br />
-    d{：从本段的开始位置删除到当前位置；<br />
-    db：从单词的开始处删除；<br />
-    dW：删除到以空白为分隔的单词的末尾；<br />
-    dB：从以空白为分隔的单词的首字符开始删除；<br />
-    d5B：从以空白为分隔的前面第5个单词的首字符开始删除；<br />
-    d)：删除到句子的末尾；<br />
-    d4)：删除到第4个句子的末尾；<br />
-    d}：删除到段落末尾；<br />
-    d4}：删除到后面的第4段末尾；<br />
-    dd：删除一行；<br />
-    3dd：删除当前行开始的3行；<br />
-    dL：删除到当前屏幕的最后一行（包括最后一行）；<br />
-    dH：从当前屏幕的第一行开始删除。</p>
-
-
-<p>
-    C：删除到行的末尾，并进入插入模式。<br />
-    cxx：删除指定的内容并进入插入模式。xx后缀与d命令的后缀相同。</p>
-
-
-<p>
-    ~：更改大小写；<br />
-    3~：从当前字符开始更改3个字符的大小写；</p>
-
-
-<p>
-    s：用一个或多个字符替换当前光标位置处的字符；<br />
-    S：用一个或多个字符替换当前行；<br />
-    10s：用一个或多个字符替换当前字符开始的10个字符；</p>
-
-
-<p>
-    J：把当前行的末尾与下一行连接起来并以一个空格分隔，如果当前行以句点&ldquo;.&rdquo;结尾，则两行之间插入两个空格；</p>
-
-
-<p>
-    .：句点命令，重复执行最近一次的修改命令。</p>
-
-
-<p>
-    u：撤销上一次的编辑操作；<br />
-    U：撤销对当前行的所有修改，将文本恢复到启动修改之前的状态<br />
-    Ctrl+R：重复命令，即redo。</p>
-
-
-<p>
-    f：从当前光标开始查找指定的字符，并将光标移动到该字符出现的位置，可以d、c合用；<br />
-    3fq：光标移到本行第三个字符q所在位置；<br />
-    F：从本行开始位置到当前光标所在位置之间查找字符。</p>
-
-
-<p>
-    行号+G：定位到指定的行，若不指定行号，则默认定位到最后一行。</p>
-
-
-<p>
-    y：复制到通用缓冲区，与移动命令合用，如y2l，与d、c后缀相同。yy复制一行，3yy复制3行；<br />
-    Y：等同于yy。</p>
-
-
-<p>
-    p：把通用缓冲区的内容粘贴到当前位置，删除命令或复制命令都会把文本存入通用缓冲区中；<br />
-    P：把通用缓冲区的内容粘贴到当前字符之前。</p>
-
-
-<p>
-    Ctrl＋G：显示文件状态。</p>
-
-
-<p>
-    ZZ：保存并退出。</p>
-
-
-<p>
-    /＋字符串：查找字符串；<br />
-    n：向后重复上一次搜索；<br />
-    N：向前重复上次搜索。</p>
-
-
-<p>
-    Ctrl+w+s：水平拆分窗口；<br />
-    Ctrl+w+n：打开新窗口编辑一个空文件；<br />
-    Ctrl+w+w：实现在多个窗口之间的切换。</p>
-
-
-<p>
-    Ctrl+L：重绘屏幕。</p>
-
-
-<p>
-    Ctrl+y：向上滚一行；<br />
-    Ctrl+e：向下滚一行；<br />
-    Ctrl+u：向上滚动半屏；<br />
-    Ctrl+d：向下滚动半屏；<br />
-    Ctrl+b：向上滚动整屏；<br />
-    Ctrl+f：向下滚动整屏。</p>
-
-
-<p>
-    <span style="font-size:16px"><strong>末行模式下的命令</strong></span></p>
-
-
-<p>
-    : [address] r [filename]：把文件内容插入到当前缓冲区，address可以是行号，未指定行号时默认插入到当前光标所在行的下方，未指定文件名时默认再次读入当前文件；<br />
-    : [address] w [filename]：把缓冲区的部分或全部内容写入到磁盘，例：:3,8 w temp把3～8行的内容写加到temp文件里。:4,10 w &gt;&gt; temp把4～10行内容追加到temp文件里；</p>
-
-
-<p>
-    :f：显示文件状态，等同于命令模式下的Ctrl+G。</p>
-
-
-<p>
-    :undo：撤消命令，等同于命令模式下的u；<br />
-    :redo：重复命令，等同于命令模式下的Ctrl+R。</p>
-
-
-<p>
-    :w：保存缓冲区的内容，但不退出；<br />
-    :w filename：另存为；<br />
-    :q：退出；<br />
-    :wq：保存并退出；<br />
-    :q!：不保存而退出。</p>
-
-
-<p>
-    :set noincsearch：设置普通查找，当输入/+字符串并按回车键开始查找；<br />
-    :set incsearch：设置增量查找，每输入一个字符vi便高亮显示匹配的位置。</p>
-
-
-<p>
-    :[g] [address] s/search/replacement [/option]：替换字符串。g表示对所有匹配结果进行替换，否则只对第一次查找结果进行替换。address表示查找的范围，不指定则只搜索当前行。</p>
-
-
-<p>
-    :split：窗口水平拆分，可以多次拆分；<br />
-    :split filename：水平拆分窗口，并在新窗口中载入指定文件；<br />
-    :vsplit：窗口垂直拆分；<br />
-    :vsplit filename：垂直拆分窗口，并载入指定文件。<br />
-    :only：关闭除当前窗口之外的窗口；<br />
-    :q：关闭当前窗口；<br />
-    :qall：关闭所有窗口。</p>
-
-
-<p>
-    :sh：启动一个Shell，在该Shell里输入exit或Ctrl+d退出Shell回到vi；<br />
-    :!command：执行外部命令。</p>
-
-
-<p>
-    :&#39;标记：字符&ldquo;&#39;&rdquo;，标记当前行，例：:&#39;t把该行标记成t；（博主用该命令时得到错误&ldquo;E20 没有设定标记&rdquo;。）<br />
-    :`标记：字符&ldquo;`&rdquo;，使用标记，例如标记t存在时，命令:d&#39;t删除该行。</p>
-
-
-<p>
-    :help：获得帮助。</p>
-
-
-<p>
-    <span style="color:#6666CC"><strong><span style="font-size:18px">第２章：emacs －editing macros，宏编辑器</span></strong></span></p>
-
-
-<p>
-    emacs是一个屏幕编辑器，与vim相比，vim更适合于完成小型任务，如邮件的快速回复、系统配置的简单修改等，而emacs更适合于处理复杂 事务，如同时修改多个文件、调用其他程序等。与vim不同，emacs不需要在插入模式和命令模式间进行切换，所以emacs被称为无模式编辑器。 emacs与vim最大的区别是emacs允许用户使用Lisp编写新命令或者原来的命令。</p>
-
-
-<p>
-    在图形环境中，输入emacs命令进入图形界面。在命令行环境中，或输入命令emacs -nw -q filename进入文本模式。-nw表示不使用X接口，-q表示不从用户的主目录下读取&ldquo;~/.emacs&rdquo;或&ldquo;default.el&rdquo;初始化文件，而 使用标准的、未定制的emacs。不带参数的emacs进入帮助界面。</p>
-
-
-<p>
-    窗口底部反白显示的文本条，被称为模式行（mode line）。模式行显示的信息包括：文件修改指示符、当前文件名称、模式说明、当前光标位置指示符、缓冲区位置。<br />
-    文件修改指示符是靠近最左边的两个星号字符。星号表示文件被修改，否则不显示星号而显示连字符。<br />
-    缓冲区位置给出了当前窗口距离缓冲区底部的距离。可为&ldquo;All&rdquo;、&ldquo;Top&rdquo;、&ldquo;Bot&rdquo;或百分比。</p>
-
-
-<p>
-    屏幕的底部有一个单独的行，被称为回显区（echo area）或小缓冲区（mini buffer），也称状态行，用来显示较短的消息或特殊的单行命令。</p>
-
-
-<p>
-    Ctrl+X Ctrl+C：退出。<br />
-    Ctrl+X Ctrl+s：保存文件。</p>
-
-
-<p>
-    Ctrl+F、右方向键：光标向前；<br />
-    Ctrl+B、左方向键：光标向后；<br />
-    Alt+f：光标向前移动一个字；<br />
-    Alt+b：光标向后移动一个字；<br />
-    Ctrl+A：光标移到行首；<br />
-    Ctrl+E：光标移到行尾；<br />
-    Ctrl+P、上方向键：光标上移一行；<br />
-    Ctrl+N、下方向键：光标下移一行；<br />
-    Alt+a：光标移到句子的开始处；<br />
-    Alt+e：光标移到句子的末尾；<br />
-    Alt+{：光标移到段落开始处；<br />
-    Alt+}：光标移到段落末尾；<br />
-    Alt+r：光标移到窗口中间一行的开始处。</p>
-
-
-<p>
-    Ctrl+U：重复执行命令，如Ctrl+U 7 Ctrl+B向左移动7个字符。</p>
-
-
-<p>
-    Ctrl+D、DEL键：删除光标所在字符。<br />
-    Backspace：删除光标左边字符。</p>
-
-
-<p>
-    Ctrl+X 2：水平拆分窗口；<br />
-    Ctrl+X 3：垂直拆分窗口；<br />
-    Ctrl+X b：切换到指定的缓冲区。</p>
-
-
-<p>
-    Ctrl+V、PageDown键：向前滚动一屏；<br />
-    Alt+V、PageUP键：向后滚动一屏；<br />
-    Ctrl+L：重绘屏幕。</p>
-
-
-<p>
-    <span style="color:#6666CC"><strong><span style="font-size:18px">第３章：grep－Global search Regular Expression and Print out the line</span></strong></span></p>
-
-
-<p>
-    grep是一个最初用于UNIX操作系统的命令行工具。在给出文件列表或标准输入后，grep会对匹配一个或多个正则表达式的文本进行搜索，并只输出匹配的文本。语法为：grep [选项] 字符模式 [文件名1，文件名2］。不输入文件名则从标准输入读取内容。</p>
-
-
-<p>
-    grep使用<span style="font-weight:bold">正则表达式元字符基本集</span>，包括：<br />
-    ^：匹配行首；<br />
-    $：匹配行尾；<br />
-    .：匹配任意字符；<br />
-    *：匹配0个或多个任意字符；<br />
-    []：匹配指定范围内的其中一个字符；<br />
-    [^]：匹配不在指定范围内的字符；<br />
-    \&lt;：匹配单词首。（在linux终端上敲命令时，需要多使用一个反斜杠，如：grep abcd&#92;&lt; filename，因为第一个反斜杠用于转义一个shell的反斜杠。）<br />
-    \&gt;：匹配单词末。<br />
-    \{m\}：匹配前一字符的m次出现。<br />
-    \{m,\}：匹配前一字符的至少m次出现。<br />
-    \{m,n\}：匹配前一字符至少m次，至多n次出现。</p>
-
-
-<p>
-    grep的选项包括：<br />
-    -#：同时显示匹配行上下的＃行，＃表示数字；<br />
-    -b：在每行前打印字符偏移量；<br />
-    -c：只打印匹配的行数，不显示匹配的内容；<br />
-    -f FILE：从FILE文件中提取模式；<br />
-    -h：当搜索多个文件时，不显示匹配文件名前缀；<br />
-    -i：忽略大小写；<br />
-    -q：取消显示，只返回退出状态，0表示找到了匹配的行；<br />
-    -l：打印匹配模式的文件清单；<br />
-    -L：打印不匹配模式的文件清单；<br />
-    -n：在匹配的行前面打印行号；<br />
-    -s：不显示关于不存在或无法读取文件的错误信息；<br />
-    -v：反检索，只显示不匹配的行；<br />
-    -w：如果被\&lt;和\&gt;引用，就把表达式作为一个单词搜索；<br />
-    -V：显示软件版本信息。</p>
-
-
-<p>
-    grep的退出状态存储在$?里，通过ehco $?可以查看，搜索成功值为0，搜索不成功值为1，文件不存在则返回2。</p>
-
-
-<p>
-    egrep（extend grep）命令与grep相似，执行效率比grep高，但需要占用较大内存空间。egrep使用正则表达式元字符的扩展集，包括：<br />
-    +：匹配一个或多个前一字符；<br />
-    ?：匹配一个或0个前一字符；<br />
-    a|b|c：匹配a或b或c。<br />
-    ()：分组符号；<br />
-    x{m}、x{m,}、x{m,n}：作用同x\{m\}、x\{m,\}、x\{m,n\}。</p>
-
-
-<p>
-    grep -E打开对元字符扩展集的支持，实现与egrep相同的功能。</p>
-
-
-<p>
-    fgrep：与grep相似，占用空间比egrep小，速度比grep快，但不识别正则表达式。</p>
-
-
-<p>
-    <span style="color:#6666CC"><strong><span style="font-size:18px">第４章：gawk与sed</span></strong></span></p>
-
-
-<p>
-    <strong><span style="font-size:16px">awk</span></strong>是模式扫描和处理语言，又称过滤器，是Linux/Unix下用来操纵数据和产生报告的程序语言。其处理的数据可以来自标准输入、一个或多个文件、或者其他命令的输出。</p>
-
-
-<p>
-    awk写于1977年，其名称取自其作者姓氏的第一个字母，分别是Alfred V Aho, Peter J. Weinberger和Brian W Kernighan。在1985年的升级版中加入了用户自定义函数、动态正则表达式和处理输入文件等功能，使得awk可以处理大型程序。awk有多个版 本，包括旧版awk、nawk（new awk，新版本）、gawk（GNU版本）以及POSIX awk等。很多Linux系统将/bin/awk链接至/bin/gawk。</p>
-
-
-<p>
-    gawk程序由包含模式和动作的单行或多行文本组成，格式如下：<br />
-    pattern {action}<br />
-    模式用来从输入中选取文本行，对于匹配的每行文本，gawk都执行fcwt（action）来处理。</p>
-
-
-<p>
-    模式用斜杠包装，如：gawk /word/ filename查找所有包含word的行。这里没有指定action，默认为print。</p>
-
-
-<p>
-    &ldquo;~&rdquo;用于测试一行中某段是否匹配模式。一行中可以有多个&ldquo;段&rdquo;，各&ldquo;段&rdquo;之间由空白符号分隔，如section1 secion2 section3。gwak &#39;$1~/word/&#39; filename在文件中查找第一段匹配word的各行。&ldquo;!~&rdquo;用于测试不匹配，如gawk &#39;$2!~/word/&#39; filename。</p>
-
-
-<p>
-    BEGIN和END是两个独特的模式，分别是在gawk开始处理之前和处理完毕之后要执行的命令。在处理所有输出之前，gawk执行BEGIN模式 关联的动作，在处理完之后执行END模式关联的动作。例：gawk &#39;BEGIN{print &quot;This is the beginning&quot;} {print}&#39; filename。又例： gawk &#39;BEGIN {print &quot;head&quot;; count=0} {print; count++} END {printf &quot;end: %d&quot;, count}&#39; filename。</p>
-
-
-<p>
-    逗号&ldquo;,&rdquo;可以分隔两个模式，作为范围运算符。例：gawk &#39;/abcd/,/efgh/&#39; filename 输出第一行匹配abcd而最后一行匹配efgh的多行。</p>
-
-
-<p>
-    {print}是默认的动作，不带参数时则输出记录（通常是一行）。参数可以是变量或字符串常量。还可以指定输出到文件，如&gt;（覆 盖）、&gt;&gt;（追加）、|（管道）和|&amp;（协进程，双向管道）。例：{print &gt; &quot;somefile&quot;}。多个动作用分号&ldquo;;&rdquo;隔开。</p>
-
-
-<p>
-    &ldquo;#&rdquo;开头的程序行表示注释。</p>
-
-
-<p>
-    gawk不需要声明可以直接使用变量。未赋初始值的变量自动初始化为0或空字符串。除了用户变量（user variable）外，gawk还维护了程序变量（program variable）：<br />
-    $0：当前记录（作为单个变量）；<br />
-    $1-$n：当前记录的字段；<br />
-    FILENAME：当前输入文件名（null表示标准输入）；<br />
-    FS：输入字段的分隔符；<br />
-    NF：当前记录的字段数目；<br />
-    NR：当前记录的记录编号，每处理完一个记录，NR的值就自动加1；<br />
-    OFS：输出字段分隔符（默认为空格符）；<br />
-    ORS：输出记录分隔符（默认为换行符）；<br />
-    RS：输入记录分隔符（默认为换行符）；</p>
-
-
-<p>
-    除了在程序中初始化变量外，还可以在命令行上用&ldquo;&#8211;assign&rdquo;或&ldquo;-v&rdquo;选项初始化变量。如：awk -v A=1 &#39;{print A}&#39; filename。</p>
-
-
-<p>
-    gawk把输入文件看作是一个具有一定格式的记录集合，通常一行为一个记录，每个记录被空格分隔成多个字段。-F选项可以指定字段分隔符， 如：awk -F: &#39;{print $2}&#39; filename指定分隔符为冒号&ldquo;:&rdquo;。而awk -F[:-] &lsquo;{print $2}&#39; filename指定分隔符为冒号&ldquo;:&rdquo;或者连字符&ldquo;-&rdquo;，即记录1:2-3被视为1、2、3三个字段。输入段分隔符也可以在模式中指定：awk &#39;BEGIN{FS=&quot;[:-]&quot;} {print $2}&#39; filename。</p>
-
-
-<p>
-    {print $2 $3}会把两个变量合并输出，例如，$2为&quot;a&quot;，$3为&quot;b&quot;，则前述动作输出&ldquo;ab&rdquo;，{print $2,$3}输出&quot;a b&quot;。输出段分隔符可以在BEGIN模式中指定：awk BEGIN{OFS=&quot;:&quot;} {print $2}&#39; filename。</p>
-
-
-<p>
-    gawk支持函数，自带的函数有：<br />
-    length(str)：返回str的字符个数。不带参数则返回当前记录的字符个数。<br />
-    int(num)：返回num的整数部分。<br />
-    index(str1,str2)：str2在str1中的位置，如果不在则返回0。<br />
-    split(str,arr,del)：用del作定界符，将str的元素放置到数组arr[1]&#8230;arr[n]中，返回数组元素个数。<br />
-    sprintf(fmt,args)：根据fmt格式化args并返回格式化后的字符串，模仿C编程语言中相应的同名函数。<br />
-    substr(str,pos,len)：返回str中从pos开始长度为len个字符的字符串。<br />
-    tolower(str)：返回str的副本，所有大写字母被转换成小写。<br />
-    toupper(str)：返回str的副本，所有小写字母被转换成大写。</p>
-
-
-<p>
-    gawk支持关联数组，即array[string]=value。关联数组可以用for来遍历。例：awk &#39;{array[$1]=$2} END{for (elem in array) print elem}&#39; filename。</p>
-
-
-<p>
-    printf用于格式化输出，语法为：%[-][x[.y]]cov。&ldquo;-&rdquo;表示左对齐，&ldquo;x&rdquo;表示最小字段宽度，&ldquo;y&rdquo;表示数字中小数点右边的位数。&ldquo;conv&rdquo;指示数值转换的类型，包括：<br />
-    d：十进制；<br />
-    e：指数表示；<br />
-    f：浮点数字；<br />
-    g：使用f或e中较短的那个；<br />
-    o：无符号八进制；<br />
-    s：字符串；<br />
-    x：无符号十六进制。</p>
-
-
-<p>
-    gawk支持关系运算符，包括&lt;、&gt;、&lt;=、&gt;=、==、!=。布尔结果可以用布尔运算符&ldquo;&amp;&amp;&rdquo;和 &ldquo;||&rdquo;来运算。算术运算符支持&ldquo;+&rdquo;、&ldquo;-&rdquo;、&ldquo;*&rdquo;、&ldquo;/&rdquo;、&ldquo;=&rdquo;、&ldquo;%&rdquo;、&ldquo;++&rdquo;、&ldquo;&#8211;&rdquo;、&ldquo;+=&rdquo;、&ldquo;-=&rdquo;、&ldquo;*=&rdquo;、&ldquo;/=&rdquo;和 &ldquo;%=&rdquo;。与C基本一样。</p>
-
-
-<p>
-    流程控制有if&#8230;else，while，for，break和continue。</p>
-
-
-<p>
-    getline可以用来读取文件中的一行。如awk &#39;BEGIN {getline myline; print myline}&#39; myfile只输出文件的第一行，可以用循环来控制读取的行数。</p>
-
-
-<p>
-    awk程序可以写在一个文件里作为脚本文件，再用-f选项指定。例：awk -f myscript filename。</p>
-
-
-<p>
-    协进程（coprocess）是指与另一个进程并行运行的进程。gawk从版本3.1开始可以通过协进程方式直接与某个后台进程进行信息交换。协进程可用于客户端／服务器环境中（例如构建SQL前端与后端），或者通过网络与远程系统交换数据。例如，下面这个awk脚本：<br />
-    BEGIN {<br />
-    &nbsp;&nbsp;&nbsp; count = 0;<br />
-    &nbsp;&nbsp;&nbsp; while (getline myline) {<br />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print myline |&amp; &quot;./coprocess&quot;;<br />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;./coprocess&quot; |&amp; getline LINE;<br />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print LINE;<br />
-    &nbsp;&nbsp;&nbsp; }<br />
-    }<br />
-    它将与同一目录一下的可执行文件coprocess进行协作。下面是coprocess文件的内容：<br />
-    #!/bin/bash<br />
-    while read LINE<br />
-    do<br />
-    &nbsp;&nbsp;&nbsp; echo &quot;tommy&quot; $LINE<br />
-    done<br />
-    之后运行命令：gawk -f myscript filename，则在filename中的每行前加上&ldquo;tommy&rdquo;再输出到标准输出。</p>
-
-
-<p>
-    在协进程的基础上，gawk还可以通过网络交换数据。gawk可以通过IP网络连接到另一个系统上的某个进程进行信息交换。当用户使用&ldquo;/inet/&rdquo;开头的特殊文件名时，gawk将使用网络连接来处理用户的请求。以&ldquo;inet&rdquo;开头的特殊文件的格式如下：<br />
-    /inet/protocol/local-port/remote-host/remote-port<br />
-    其中&ldquo;protocol&rdquo;通常是TCP，也可以是UDP。&ldquo;local-port&rdquo;表示本地端口，0表示让gawk自动选择一个端口。&ldquo;remote- host&rdquo;表示远端主机的地址，&ldquo;remote-port&rdquo;表示远端端口号，可以指定为http或ftp地址。比如下面的代码：<br />
-    BEGIN {<br />
-    &nbsp;&nbsp;&nbsp; server = &quot;/inet/tcp/0/www.google.com/80&quot;;<br />
-    &nbsp;&nbsp;&nbsp; print &quot;start to connect..&quot;;<br />
-    &nbsp;&nbsp;&nbsp; print &quot;GET /index.html\r\n&quot; |&amp; server;<br />
-    &nbsp;&nbsp;&nbsp; print &quot;request sent.&quot;<br />
-    &nbsp;&nbsp;&nbsp; while (server |&amp; getline)<br />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print $0;<br />
-    &nbsp;&nbsp;&nbsp; print &quot;done.&quot;<br />
-    }</p>
-
-
-<p>
-    <strong><span style="font-size:16px">sed</span></strong>（stream editor，流编辑器）是一个批处理（非交互式）编辑器，可以实现在vi和ex里一样的编辑任务。sed相当小巧，可以利用管道对标准输入／输出的数据 进行编辑和组合。sed可以对来自文件或标准输入流进行转换，通常被用作管道中的过滤器。由于sed仅仅对其输入进行一遍扫描，因此比其他交互编辑器（如 ed）更加高效。</p>
-
-
-<p>
-    sed一次处理一行文本并把处理结果输出送往标准输出设备（屏幕）。sed把当前处理的行存储在模式空间（pattern space）的临时缓冲区中。一旦sed完成对模式空间中行的处理（也就是执行完这一行中的sed命令），模式空间中的行就被送往屏幕（除非命令是删除行 或者打印到打印机）。行被处理完成以后，就被移出模式空间，程序接着读入下一行，处理、显示、移出&hellip;&hellip;文件输入的最后一行被处理完成以后，sed结束。通 过在临时缓冲区存储每一行，然后在缓冲区中操作该行，保证了原始文件不会被破坏。</p>
-
-
-<p>
-    sed命令行的语法格式为：<br />
-    sed [-n] program [file-list]<br />
-    sed [-n] -f program-file [file-list]<br />
-    其中&ldquo;program&rdquo;表示命令行中的sed程序，&ldquo;program-file&rdquo;表示一个sed程序文件。&ldquo;file-list&rdquo;表示sed将要处理的普通数据文件。&ldquo;-n&rdquo;选项阻止sed将选定的行复制到标准输出上。</p>
-
-
-<p>
-    sed程序由符合如下语法的一行或多行命令构成：<br />
-    [address][, address] instruction [argument-list]</p>
-
-
-<p>
-    其中&ldquo;address&rdquo;是可选的，如果省略则对输入的所有行进行处理。地址可以以行号、正则表达式或二者结合的方式表示。比如sed -n &#39;3,/abcd/ p&#39; filename输出第3行到匹配&ldquo;abcd&rdquo;的那行。其中&ldquo;p&rdquo;是打印指令。&ldquo;$&rdquo;表示最后一行。</p>
-
-
-<p>
-    指令包括：<br />
-    d：删除指令（delete）。导致sed不输出被选择的行，并且不继续完成对该行的后续处理过程。<br />
-    n：下一条指令（next）。输出当前选择的行（如果可以），然后从输入中读入下一行，并且从program或program-file中的下一条指令开始对新读入的行进行处理。<br />
-    a：追加指令（append）。在当前选择的行之后插入一行或多行文本。如果在a指令前有两个地址，那么它将在选定的每一行之后添加文本。如果a指令前没有地址，它将在每行之后添加文本。<br />
-    i：插入指令（insert）。与a指令同，只不过是将文本添加到选定的行之前。<br />
-    c：修改指令（change）。与a和i指令类似，不同的是它将选定的行修改为新的文本。如果指定的是一个地址范围，c指令将整个范围内的行替换成新文本。<br />
-    s：替换指令（subsitute）。与vim中的替换指令类似。语法为s/pattern/replacement/[g][p][w file]。g为global，替换所有匹配；p为print，打印替换过的行；w为写入文件。<br />
-    p：打印指令（print）。将选定的行写入标准输出。<br />
-    w file：写指令（write）。把选定的行写入文件。<br />
-    r file：读指令（read）。从文件中读出内容并添加到选定的行之后。<br />
-    q：退出指令（quit）。立即结束sed。</p>
-
-
-<p>
-    sed具有一此控制结构，可以控制程序的流程走向。常用的控制结构有：<br />
-    !：取反操作，使得sed后面与其同一行的指令作用于没有该指令选择的每一行地址上。例如，&ldquo;3!d&rdquo;将删除除第3行外的所有行，而&ldquo;$!p&rdquo;将显示除最后一行外的所有行。<br />
-    {}：将一组指令括起来，用于定义指令组。该组指令将作用于它前面的地址所选定的行，使用分号可将一行中的多条指令分隔开。<br />
-    分支指令：sed不适合使用分支指令，如果需要，建议使用awk或Perl来编写程序。<br />
-    :label：标识sed程序中的一个位置，适用于分支指令b或t<br />
-    b [label]：无条件转移到label标识的命令。如果没有指出分支目标label，则跳过当前行中剩下的指令并从输入中读取下一行。<br />
-    t [label]：如果从输入中读取的行使得s指令匹配成功，则转移到label标识的命令。如果没有指出分支目标label，则跳过当前行中剩下的指令并从输入中读取下一行。</p>
-
-
-<p>
-    sed有两个缓冲区：Pattern区和Hold区。Pattern区中保存着sed从输入中读取的行，所有的命令都工作在Pattern区上。Hold区作为临时缓冲区，可以用来暂存数据。Pattern区和Hold区之间进行数据传送的指令有：<br />
-    g：将Hold区中的内容复制到Pattern区中。Pattern区中原来的内容将会丢失。<br />
-    G：将一个换行符和Hold区中的内容追加到Pattern区中的内容之后。<br />
-    h：将Pattern区中的内容复制到Hold区中。Hold区中原来的内容将会丢失。<br />
-    H：将一个换行符和Pattern区的内容附加到Hold区中的内容之后。<br />
-    x：交换Pattern区和Hold区中的内容。</p>
-
-
-<p>
-    <span style="color:#6666CC"><strong><span style="font-size:18px">第５章：其它常用的文本编辑命令</span></strong></span></p>
-
-
-<p>
-    <strong>aspell</strong>：检查文件的拼写错误。例：aspell -c file检查文件的拼写错误，并进入交互模式。-c为check，指定文件。aspell -l从标准输入产生一个拼写错误的单词列表。aspell dump master输出使用的检错词典。aspell还有一个兼容的ispell命令，功能及用法与aspell相似，但不包含一些选项。</p>
-
-
-<p>
-    <strong>cat</strong>：显示文本内容。cat是Concatenate的缩写。-b对非空行输出行编号；-E在每行结束处显示$；-n对输出的所有行编号；-S不输出多行空行；-T：将制表符Tab显示为^I；-v显示非打印内容。-A等价于-vET；-e等价于-vE；-t等价于-vT。<br />
-    -v选项的英文解释：Non-printing characters (with the exception of tabs, new-lines and form-feeds) are printed visibly.<a href="http://www.computerhope.com/jargon/ja.htm#ascii">ASCII</a> control characters (octal 000 - 037) are printed as ^n, where n is the corresponding ASCII character in the range octal 100 - 137 (@, A, B, C, &#8230;, X, Y, Z, [, \, ], ^, and _); the DEL character (octal 0177) is printed ^?. Other non-printable characters are printed as M-x, where x is the ASCII character specified by the low order seven bits。</p>
-
-
-<p>
-    <strong>cmp</strong>：比较文件差异。例：cmp file1 file2。-l显示字节序号（十进制）和字节差异（八进制）。-i SKIP：路过起始输入的SKIP个字节。-i SKIP1:SKIP2：跳过文件1的SKIP1字节、文件2的SKIP2字节。-s不显示差异信息，仅返回状态值，0表示文件相同，1表示不 同，&gt;1表示存在错误。-n LIMIT比较至多LIMIT个字节。-b显示差异字节。</p>
-
-
-<p>
-    <strong>csplit</strong>：按指定行数分割文件。例：csplit file 50把前50行分割成一个文件，其余部分成为另一个文件。</p>
-
-
-<p>
-    <strong>cut</strong>：从文件选择指定的内容，并输出到标准输出。cut -c 2 file输出每行第2个字符。-c1-10输出每行第1～第10个字符。-b1输出每行的第一个字节。</p>
-
-
-<p>
-    <strong>col</strong>：过滤控制字符。-b过滤BACKSPACE；-x：将TAB替换为多个空格。</p>
-
-
-<p>
-    <strong>colrm</strong>：删除指定的列。例：colrm 2 5 &lt; file删除第2到第5列。</p>
-
-
-<p>
-    <strong>comm</strong>：对已排序文件逐行进行比较。输出结果由3列组成，第1列表示仅在第1个文件中出现的行，第2列表示仅在第2个文件出现的行，第3列表示在2个文件中都存在的行。sort file &gt; sorted_file用来给文件排序。</p>
-
-
-<p>
-    <strong>diff</strong>：比较文本文件。例：diff file1 file2。-y输出时使用对比格式，即输出两列；-b忽略空格；-B忽略空白行；-i忽略大小写。-u：输出统一文件的行数；-r：当两个都是目录时， 递归比较子目录。-N：在比较目录时，如果一个文件只出现在第一个目录中，则认为它在另一个目录中了以下也出现，且为空。diff -ruN file1 file2 &gt; file.diff生成差异文件，之后可用patch命令进行打补丁：patch -p1 &lt;file.diff。</p>
-
-
-<p>
-    <strong>diffstat</strong>：读取diff命令的输出，显示统计信息。例：diff file1 file2 | diffstat。</p>
-
-
-<p>
-    <strong>ed</strong>：行文本编辑器。</p>
-
-
-<p>
-    <strong>fmt</strong>：编排文本文件。重排指定文件的每一个段落，并输出到标准输出设备。例：fmt file。</p>
-
-
-<p>
-    <strong>gedit</strong>：gnome的文本编辑器。</p>
-
-
-<p>
-    <strong>head</strong>：从开始显示指定行。例：head -5 file。</p>
-
-
-<p>
-    <strong>indent</strong>：调整C原始代码文件格式。</p>
-
-
-<p>
-    <strong>jed</strong>：编辑文本文件。</p>
-
-
-<p>
-    <strong>joe</strong>：编辑文本文件。功能强大的ASCII文本编辑器，操作比较复杂，但功能很强大。可以模拟多种工作环境。如WordStar、Emacs、Pico和简约版joe。</p>
-
-
-<p>
-    <strong>join</strong>：基于相同字段连接两个文件。例如，文本a的内容为：<br />
-    1 aa<br />
-    2 bb<br />
-    3 cc<br />
-    文件b的内容为：<br />
-    1 oo<br />
-    2 pp<br />
-    4 qq<br />
-    则join a b的结果为：<br />
-    1 aa oo<br />
-    2 bb pp。<br />
-    而join b a的结果为：<br />
-    1 oo aa<br />
-    2 pp bb</p>
-
-
-<p>
-    <strong>less</strong>：前后翻阅文本内容。-m显示百分比；-M显示百分比、行号及总行数；-N在每行前输出行号；-S合并 连续空白行；-i搜索时忽略大小写，搜索串中包含大写字母除外；-I搜索时忽略大小写，搜索串中包含小写字母除外。打开less后进入类似于vi末行模式 的界面。可使用命令：<br />
-    回车键：向下移动一行<br />
-    y：向上移动一行<br />
-    空格：向下滚动一屏<br />
-    b：向上滚动一屏<br />
-    d：向下滚动半屏<br />
-    u：向上滚动半屏<br />
-    h：less的帮助<br />
-    g：跳到第1行<br />
-    G：跳到最后1行<br />
-    数字%：跳到百分比处；<br />
-    数字w：向上滚动数行；<br />
-    数字回车：向下滚动数行；<br />
-    /pattern：查找<br />
-    n：继续查找。<br />
-    q：退出<br />
-    v：调用vi编辑器。<br />
-    !command：调用shell命令。</p>
-
-
-<p>
-    <strong>more</strong>：分屏显示文本内容。+n从第n行开始显示；-n定义屏幕大小为n行；+/pattern从pattern前两行开始显示；-c从顶部清屏，然后显示；-s合并多个空白行；-u去除文件内容里的下划线。more启动后进入交互界面，可使用命令：<br />
-    Enter：向下n行，需要定义，默认为1行；<br />
-    Ctrl+F：向下滚动一屏；<br />
-    空格键：向上滚动一屏；<br />
-    Ctrl+B：返回上一屏；<br />
-    ＝：输出当前的行号；<br />
-    :f：输出文件名和当前行的行号；<br />
-    V：调用vi编辑器；<br />
-    !command：调用shell命令；<br />
-    q：退出。</p>
-
-
-<p>
-    <strong>od</strong>：输出文件内容。以八进制或其他格式显示。od file以八进制显示；od -t c file以字符方式显示；-t a以ASCII码的形式显示；-t d以十进制方式显示；-t f以浮点数形式显示；-x以十六进制形式显示。</p>
-
-
-<p>
-    <strong>pr</strong>：编排文件格式。pt file为文件加上一个表头。pt -3 file分三栏显示文件。</p>
-
-
-<p>
-    <strong>patch</strong>：修补文件。例：diff a b &gt; ab.diff。patch a &lt; ab.diff可以使a的内容与b一致。</p>
-
-
-<p>
-    <strong>pico</strong>：编辑文字文件。</p>
-
-
-<p>
-    <strong>sort</strong>：文件排序。-d按字典序排序；-g按数字排序；-c检查是否已排过序；-f把小写字母看作大写字母；-n按照数值排序；-r逆序排列；-o将结果输出到文件；-t指定分隔符；+指定排序的起始比较位置。</p>
-
-
-<p>
-    <strong>spell</strong>：简单的拼写检查程序。</p>
-
-
-<p>
-    <strong>tail</strong>：显示文件的末尾部分。例：tail -2 file显示文件最后2行。tail +11 file从文件第11行开始显示直到文件结束。</p>
-
-
-<p>
-    <strong>tac</strong>：反序输出文件。cat的反序排列。从最后一行输出到第一行。</p>
-
-
-<p>
-    <strong>tee</strong>：读取标准输入到标准输出或文件。</p>
-
-
-<p>
-    <strong>tr</strong>：转换文件中的字符。把从标准输入读入的字符串转换为指定的字符串，然后输出到标准输出设备。如：cat abc.doc | tr a-z A-Z把文件中的小写字母转换成大写字母。</p>
-
-
-<p>
-    <strong>uniq</strong>：检查文件中重复出现的行。-c：每一行前，显示重复次数；-d：显示重复的行；-i：忽略大小写；-u：仅输出不重复的行。例：uniq file。</p>
-
-
-<p>
-    <strong>view</strong>：查看文件内容。只读方式的vi。</p>
-
-
-<p>
-    <strong>wc</strong>：计算文件的字数、字节数、行数。-c：显示字节数；-m：显示字符数；-l：显示新行数；-L：显示最长行的长度；-w：显示单词数。</p>
-
-
-<p>
-    转自csdn，原文<a href="http://blog.csdn.net/yourtommy/article/details/7236771#comments">链接</a></p>
-
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/07/linux_editor/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -1149,75 +343,12 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
 <p>大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了，于是有心想了解一下这方面的知识。
 我一向推崇不知道就搜索，关于断点续传，网上有很多资料，其中有一篇<a href="http://www.wuzesheng.com/?p=1509">博文</a>总结的很不错，摘抄如下：</p>
 
-<h3>多线程下载</h3>
-
-<p>多线程下载的基本思想就是把要下载的文件按下载线程的个数N，划分为N块，每个线程负责下载一块。具体如何下载文件的块，不同的协议有点差别：</p>
-
-<ol>
-<li>Http多线程下载<br/>
-Http协议支持Range关键字，可以用Range来指定要下载的范围，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes)</li>
-</ol>
-
-
-<p>首500字节（字节位移0-499）</p>
-
-<pre><code>    Range: bytes=0-499
-</code></pre>
-
-<p>次500字节（字节位移500-999）</p>
-
-<pre><code>    Range: bytes=500-999
-</code></pre>
-
-<p>后500字节（字节位移1000-1499）</p>
-
-<pre><code>    Range: bytes=1000-1499，或者Range: bytes=1000-
-</code></pre>
-
-<p>需要注意，Http请求头中加了Range字段后，请求成功的状态码206(部分内容)，不再是200。</p>
-
-<ol>
-<li>Ftp多线程下载<br/>
-Ftp协议支持REST和RETR指令，可以用这两个指令来指定要下载起始位置，如下所示（假设要下载的文件总大小为1500bytes，用三个线程下，每个线程下载500bytes, 文件名为file)</li>
-</ol>
-
-
-<p>首500字节: 首先用REST 0设置从第0个字节开始下载，然后用 RETR file指定要下载的文件，启动数据接收，开始下载。<br/>
-次500字节和最后500字节的做法和上面一样，唯一的区别在于REST指定的起始位置不一样，次500字节为REST 500，最后500字节为REST 1000。</p>
-
-<p>需要注意，Ftp不能像Http那样，指定要下载的范围，只能指定要下载的起位置。因此，应用需要自己把握下载了多少个字节，比如说，要下载中间500个字节，用REST设置完起始位置，开始下载后，如果应用判断到接收的数据已大于等于500个字节，就需要停止下载。</p>
-
-<h3>断点续传</h3>
-
-<p>断点续传的基本思想就是记住上次连接断开时已经下载的字节数N，然后本次下载的时候，从第N+1个字节开始下载，如果读者朋友对第一部分中讲的多线程下载已经理解的话，那么如果进行断点续传便是水到渠成的事情，下面我只做简单的说明，假设已经下载的字节为N:</p>
-
-<pre><code>Http: Range: bytes=N- （注意字节位移是从0开始的，因此第N+1个字节的位移是N）
-Ftp: a. REST N, b.RETR file
-</code></pre>
-
-<p>这段文字先介绍了多线程下载的原理，然后是断点续传。在我看来，这两个原理是一样的。博文中除了提到了Http协议外，还讲了Ftp协议多线程断点续传。对于Ftp协议我了解不多，不作多谈。这段时间正好有个机会需要实现Http的多线程断点续传，说说我实现过程中的一些心得体会吧。</p>
-
-<p>能否断点续传，不是只要客户端说支持就可以的，还要服务器支持。在你请求下载文件时，服务器回应的报文中，如果Http header包含<code>Accept-Ranges: bytes</code>，就说明服务器支持按偏移下载文件，也就支持多线程断点续传了，当然多线程、断点续传都需要在客户端来实现。</p>
-
-<p>另外，<code>Accept-Ranges: bytes</code>中的bytes说明偏移的单位是bytes，不是KiloBytes，更不是MegaBytes。那么客户端怎么指点偏移呢？很简单，只要在下载请求报文的header中包含Range字段，具体格式：</p>
-
-<pre><code>Range: bytes=xxxx- 
-</code></pre>
-
-<p>这儿只指定了起始偏移，并未指定结束偏移，我用WireShark抓旋风的下载请求时，它就是使用这样的格式。不过，同事说，迅雷也指定了结束偏移，哪种用法更好，暂时我还没有结论。不过，我在实现过程中发现，如果一个完整的文件，分割成多块之后，每块只指定起始偏移，没有结束偏移，其效果跟指定结束偏移一样。还拿上面的1500bytes的文件来举例，三个线程下载，每个线程的请求报文的Range格式如下：</p>
-
-<pre><code>Range: bytes=0-
-Range: bytes=500-
-Range: bytes=1000-
-</code></pre>
-
-<p>使用此下载请求，最后每一个请求的回复都只读取到了500bytes的内容，跟我最开始认为的1500,1000,500不一样，我不知道这是后台服务器比较智能，将整个文件的下载统筹规划了一下，还是说Http协议本身就是这样规定的。不过，我猜测应该是前一种，虽然没有详细看过Http协议，但我觉得协议不太可能有这个规定。另外，我测试的后台服务器是Nginx，其他服务器是不是也这样，暂时未知。</p>
-
-<p>其实到此为止，我只说了续传的一半，续传中的另一半&#8211;上传还没有涉及，后面有空会再说说上传。</p>
-
-<p>PS:纠正一下关于Range的错误，如果只指定起始便宜，不指定终结偏移，则应该是默认从起始偏移到文件结尾。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/01/14/http_multithreads_download/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -1255,85 +386,12 @@ Range: bytes=1000-
 
 <p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
 
-<ol>
-<li><p>获取源码<br/>
-下载最新的Typo的<a href="https://github.com/fdv/typo.git">源码</a></p>
-
-<pre><code> git clone https://github.com/fdv/typo.git
-</code></pre></li>
-<li><p>在config/目录下新建文件preinitializer.rb，文件内容如下（防止写文件）</p>
-
-<pre><code> require fileutils
- file_utils_no_write = FileUtils::NoWrite
- Object.send :remove_const, :FileUtils
- FileUtils = file_utils_no_write
-</code></pre></li>
-<li><p>修改<code>vendor/plugins/easy-ckeditor/init.rb</code>，注释掉两行代码（<em>这个很重要，防止ckeditor写文件造成网站崩溃</em>）</p>
-
-<pre><code> require ckeditor_file_utils
- #CkeditorFileUtils.check_and_install
-</code></pre></li>
-<li><p>修改config/enviroments/production.rb文件（之前存在侥幸心理，没有修改这一行，事实证明是不行的）</p>
-
-<pre><code> config.action_controller.perform_caching = false
-</code></pre></li>
-<li><p>修改数据库配置文件config/database.yml.example，重命名为database.yml。
-可以在配置文件中指定要连接的数据库，默认是typo_dev，指定方法：database：yourdatabase
-Typo默认使用mysql作为本地数据库，heroku默认使用postgresql作为服务端数据库，可以同步，<em>但会出现中文乱码导致网站崩溃</em>。<br/>
-解决方法：换用<code>mysql2(0.2.18)</code> gem（在Gemfile中修改）<br/>
-先安装taps：</p>
-
-<pre><code> gem install taps
-</code></pre>
-
-上传：
-
-<pre><code> heroku db:push mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
-</code></pre>
-
-下载：
-
-<pre><code> heroku db:pull mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
-</code></pre></li>
-<li><p>修改Gemfile<br/>
-Typo使用了一个比较灵活的Gemfile，可以在多个数据库adapter中选择一个，同时还支持debug。这些我都不需要，同时ruby-debug19在rvm下也无法编译通过，缺少头文件，所以我简化了一下Gemfile
-主要修改如下：<br/>
-修改source：<code>source http://ruby.taobao.org</code><br/>
-添加gem：<code>gem mysql2,0.2.18</code>，解决中文乱码导致网站崩溃问题，最新的mysql2是配合rails3.1.x的，3.0.x只能使用0.2.x，得从rubygems上下载<br/>
-修改gem：<code>gem factory_girl</code>，去掉指定版本，taobao中无法下载老版本的gem包<br/>
-删除ruby-debug19，缺少头文件，无法编译过<br/>
-执行<code>bundle install</code>，生成Gemfile.lock文件</p></li>
-<li><p>执行本地数据迁移任务<br/>
-<code>rake db:migrate RAILS_ENV=production</code><br/>
-生成了三个文件（这个不重要，我是一股脑儿把所有文件都加入git库了）</p>
-
-<blockquote><p>db/schema.rb<br/>
-log/production.log<br/>
-public/javascripts/ckeditor/config.js</p></blockquote></li>
-<li><p>创建本地git版本库,将所有文件都添加到版本库中，特别注意有没有public/files/和tmp/cache/文件夹。这个好像与之前部署失败有关，最好在这两个文件夹下面都建立一个.gitkeep文件（<em>与崩溃有关系</em>）</p>
-
-<pre><code> mkdir -p public/files tmp/cache
- touch public/files/.gitkeep tmp/cache/.gitkeep
- git add -f public/files/.gitkeep tmp/cache/.gitkeep
-</code></pre></li>
-<li><p>部署到Heroku上</p>
-
-<pre><code> heroku create yourwebname
- git push heroku master
- heroku rake db:migrate
-</code></pre>
-
-<p>执行到最后一个数据迁移任务103_really_update_existing_articles_with_nil_or_empty_post_type.rb时会失败，这个好像没啥影响</p></li>
-<li><p>大功告成，赶快浏览下吧</p>
-
-<pre><code>heroku open
-</code></pre>
-
-<p>或者手动输入URL: http://yourwebname.heroku.com</p></li>
-</ol>
-
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -1352,6 +410,10 @@ public/javascripts/ckeditor/config.js</p></blockquote></li>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/">Arch HDMI 声音输出</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a>
       </li>
     
@@ -1365,10 +427,6 @@ public/javascripts/ckeditor/config.js</p></blockquote></li>
     
       <li class="post">
         <a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/14/http_multithreads_download/">多线程断点续传之下载</a>
       </li>
     
   </ul>
