@@ -7,7 +7,7 @@ categories:
 ---
 第一版
 {% gist 1844714 WebResponse_block_first.cs %}
-
+<!--more-->
 第二版
 {% gist 1844755 WebResponse_block_second.cs %}
 

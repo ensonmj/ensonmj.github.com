@@ -8,7 +8,7 @@ categories:
 最近一直在折腾自己的私人博客，花了几天时间在自己机器上把[Typo](https://github.com/fdv/typo)跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机[Heroku](http://www.heroku.com")做的很不错，就它了。
 
 本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇[博文](https://huydinh.eu/2011/07/22/typo-on-heroku")，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。
-
+<!--more-->
 1. 获取源码  
 下载最新的Typo的[源码](https://github.com/fdv/typo.git)
         git clone https://github.com/fdv/typo.git

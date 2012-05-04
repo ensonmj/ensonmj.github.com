@@ -12,7 +12,7 @@ categories:
     optimistic[乐观]
     pessimistic[悲观]
     super pessimistic[超级悲观]
-
+<!--more-->
 以nokogiri这个gem为例：
 
     gem ‘nokogiri’ #optimistic 

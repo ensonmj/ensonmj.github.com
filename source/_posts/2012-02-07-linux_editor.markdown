@@ -17,6 +17,7 @@ categories:
 	-R filename：以只读方式编辑filename，等同于命令view filename。</p>
 <p>
 	vi的三种工作模式：命令模式（也称普通模式)、插入模式与末行模式（命令模式下输入:后进入）。</p>
+<!--more-->
 <p>
 	<span style="font-size:16px"><strong>命令模式下的命令</strong></span>：</p>
 <p>
