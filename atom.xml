@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-05-14T20:47:12+08:00</updated>
+  <updated>2012-05-23T20:51:15+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,71 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[git历史搜索的各种方法]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/"/>
+    <updated>2012-05-23T20:09:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa</id>
+    <content type="html"><![CDATA[<ul>
+<li><p>搜索提交日志</p>
+
+<p>  git log &#8211;grep</p></li>
+</ul>
+
+
+<p>示例</p>
+
+<blockquote><p>$git log &#8211;oneline<br/>
+939439b Update arch hdmi config<br/>
+bda8277 add disqus<br/>
+a128978 write a blog about hdmi audio in arch<br/>
+9ae3805 modify path for articles</p>
+
+<p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
+commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#x3a;&#101;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#x40;&#x67;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#x6f;&#x6d;">&#101;&#110;&#x73;&#111;&#x6e;&#109;&#x6a;&#64;&#103;&#109;&#x61;&#105;&#108;&#46;&#99;&#111;&#x6d;</a><br/>
+Date:   Mon May 14 20:49:32 2012 +0800</p>
+
+<p>   Update arch hdmi config</p></blockquote>
+
+<ul>
+<li><p>搜索变动</p>
+
+<p>  git log -S&lt; string ><br/>
+  git log -G&lt; regex ></p></li>
+</ul>
+
+
+<p>示例</p>
+
+<blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
+commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
+Author: ensonmj <a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#x65;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#x6f;&#x6d;">&#x65;&#x6e;&#x73;&#x6f;&#x6e;&#x6d;&#106;&#64;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#x6d;</a><br/>
+Date:   Mon May 14 20:49:32 2012 +0800</p>
+
+<p>   Update arch hdmi config</p>
+
+<p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
+Author: ensonmj <a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#111;&#x6e;&#109;&#106;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#x63;&#111;&#x6d;">&#101;&#x6e;&#115;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;</a><br/>
+Date:   Fri May 4 23:02:56 2012 +0800</p>
+
+<p>   write a blog about hdmi audio in arch</p></blockquote>
+
+<ul>
+<li><p>搜索工作区</p>
+
+<p>  git grep</p></li>
+</ul>
+
+
+<p>示例</p>
+
+<blockquote><p>$git grep &#8220;Arch HDMI&#8221;<br/>
+source/<em>posts/2012-05-04-arch-hdmi-sheng-yin-shu-chu.markdown:title: &#8220;Arch HDMI 声音输出&#8221;<br/>
+source/</em>posts/2012-05-14-arch-hdmisheng-yin-shu-chu-(xu-).markdown:title: &#8220;Arch HDMI声音输出（续）&#8221;</p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Arch HDMI声音输出（续）]]></title>
