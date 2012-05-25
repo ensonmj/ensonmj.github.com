@@ -5,12 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>加快网页加载速度方法之过滤广告 - TechToy</title>
+  <title>C# 非UI线程通知关闭UI时的异常处理 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
-最近发现访问newsmth.net就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是pagead2. &hellip;">
+  <meta name="description" content="C#中非UI线程正常情况下无法操作UI控件，一般使用委托的方式访问这些控件。
+示例代码： private void DelegateHandler()
+{ if (this.InvokeRequired) { this.Invoke(new MethodInvoker( delegate() { &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -68,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">加快网页加载速度方法之过滤广告</h1>
+      <h1 class="entry-title">C# 非UI线程通知关闭UI时的异常处理</h1>
     
     
       <p class="meta">
@@ -84,7 +85,7 @@
   
 
 
-<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
+<time datetime="2012-05-25T19:59:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -93,9 +94,77 @@
   </header>
 
 
-<div class="entry-content"><p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
-最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
-搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
+<div class="entry-content"><p>C#中非UI线程正常情况下无法操作UI控件，一般使用委托的方式访问这些控件。<br/>
+示例代码：</p>
+
+<pre><code>private void DelegateHandler()
+{
+    if (this.InvokeRequired)
+    {
+        this.Invoke(new MethodInvoker(
+            delegate()
+            {
+                this.DoSomething();
+            }));
+    }
+    else
+    {
+        this.DoSomething();
+    }
+}
+</code></pre>
+
+<!--more-->
+
+
+<p>按照此模式，外部通知关闭UI的委托处理逻辑就应该如下：</p>
+
+<pre><code>private void CloseFormDelegateHandler()
+{
+    if (this.InvokeRequired)
+    {
+        this.Invoke(new MethodInvoker(
+            delegate()
+            {
+                this.Close();
+            }));
+    }
+    else
+    {
+        this.Close();
+    }
+}
+</code></pre>
+
+<p>但此段代码有可能会造成程序崩溃，这是一个MS的bug，详情请查看此<a href="https://connect.microsoft.com/VisualStudio/feedback/details/560637/exception-invoke-or-begininvoke-cannot-be-called-on-a-control-until-the-window-handle-has-been-created-is-thrown">链接</a>，MS的建议是 <code>catch and swallow the ObjectDisposedException when you calls Control.Invoke() to dispose a control from another thread.</code> 这个建议其实也是有问题的，事实上抛出来的异常是<code>InvalidOperationException</code>，所以应该捕获并吞掉此异常。完整的代码如下：</p>
+
+<pre><code>    private void CloseFormDelegateHandler()
+    {
+        if (this.InvokeRequired)
+        {
+            try
+            {
+                this.Invoke(new MethodInvoker(
+                    delegate()
+                    {
+                        this.Close();
+                    }));
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Trace.TraceInformation("微软的建议:{0}",ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Trace.TraceInformation("莫惊慌，微软的bug:{0}",ex.Message);
+            }
+        }
+        else
+        {
+            this.Close();
+        }
+    }
+</code></pre>
 </div>
 
 
@@ -118,7 +187,7 @@
   
 
 
-<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
+<time datetime="2012-05-25T19:59:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
       
 
 
@@ -135,10 +204,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/01/14/http_multithreads_download/" title="Previous Post: 多线程断点续传之下载">&laquo; 多线程断点续传之下载</a>
+        <a class="basic-alignment left" href="/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/" title="Previous Post: git历史搜索的各种方法">&laquo; git历史搜索的各种方法</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/02/07/linux_editor/" title="Next Post: [转]linux-编辑器-vi-emacs-grep-gawk-sed等">[转]linux-编辑器-vi-emacs-grep-gawk-sed等 &raquo;</a>
       
     </p>
   </footer>
@@ -212,8 +279,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads/';
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/';
         var disqus_script = 'embed.js';
       
     (function () {
