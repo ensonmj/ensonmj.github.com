@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Arch HDMI 声音输出 - TechToy</title>
+  <title>Category: Web - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。 按照Arch &hellip;">
+  <meta name="description" content="Category: Web">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu">
+  <link rel="canonical" href="http://ensonmj.github.comblog/categories/web">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,135 +63,50 @@
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry" role="article">
+<article role="article">
   
   <header>
-    
-      <h1 class="entry-title">Arch HDMI 声音输出</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-05-04T22:36:00+08:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
-        
-         | <a href="#disqus_thread">Comments</a>
-        
-      </p>
+    <h1 class="entry-title">Category: Web</h1>
     
   </header>
-
-
-<div class="entry-content"><p>最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。</p>
-
-<!--more-->
-
-
-<p>按照Arch Wiki上有关<a href="https://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture">ALSA</a>和<a href="https://wiki.archlinux.org/index.php/PulseAudio">PulseAudio</a>的说明跑了一遍，电脑上现有的声音输出设备如下：</p>
-
-<pre><code>$aplay -l
-**** List of PLAYBACK Hardware Devices ****　
-card 0: NVidia [HDA NVidia], device 3: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 7: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 0/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 8: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 9: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: PCH [HDA Intel PCH], device 0: ALC889 &gt; Analog [ALC889 Analog]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: PCH [HDA Intel PCH], device 1: ALC889 &gt; Digital [ALC889 Digital]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-</code></pre>
-
-<p>然后测试哪个能输出声音，我的显卡是card 0,device 7能真正的输出声音。</p>
-
-<pre><code>$aplay -D plughw:0,7 /usr/share/sounds/alsa/Noise.wav 
-Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono
-</code></pre>
-
-<p>到这儿说明硬件都没有问题，但为什么默认不能使用呢？后来搜索到问题的原因：PulseAudio默认只会创建一个HDMI的输出设备,具体到我的电脑对应于card 0,device 3,所以无法听到声音。最终的解决办法是编辑<code>/etc/pulse/default.pa</code>文件，找到相应的加载模块的地方，添加一行：</p>
-
-<pre><code>load-module module-alsa-sink device=hw:0,7
-</code></pre>
-
-<p>OK,大喇叭开始广播啦</p>
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
-
-      
-
-
-
-
-
+  <div id="blog-archives" class="category">
 
 
 
   
+  <h2>2012</h2>
+
+<article>
+  
+<h1><a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a></h1>
+<time datetime="2012-02-02T20:00:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>02</span> <span class='year'>2012</span></time>
+
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/web/'>Web</a></span>
+</footer>
 
 
-<time datetime="2012-05-04T22:36:00+08:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/linux/'>Linux</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-</div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2012/02/16/webrequest_getresponse_block/" title="Previous Post: 彻底解决WebRequest的GetResponse阻塞问题">&laquo; 彻底解决WebRequest的GetResponse阻塞问题</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/" title="Next Post: Arch HDMI声音输出（续）">Arch HDMI声音输出（续） &raquo;</a>
-      
-    </p>
-  </footer>
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+<article>
+  
+<h1><a href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/">开博第一篇:部署Typo到Ｈeroku上</a></h1>
+<time datetime="2012-01-05T20:00:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>05</span> <span class='year'>2012</span></time>
+
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/web/'>Web</a></span>
+</footer>
+
+
+</article>
+
 </div>
-  </section>
+
+  
+</article>
 
 </div>
 
@@ -265,10 +180,7 @@ Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, R
       var disqus_shortname = 'techtoy';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

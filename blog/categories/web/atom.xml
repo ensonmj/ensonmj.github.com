@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Web | TechToy]]></title>
+  <link href="http://ensonmj.github.com/blog/categories/web/atom.xml" rel="self"/>
+  <link href="http://ensonmj.github.com/"/>
+  <updated>2012-05-26T21:04:22+08:00</updated>
+  <id>http://ensonmj.github.com/</id>
+  <author>
+    <name><![CDATA[ensonmj]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[加快网页加载速度方法之过滤广告]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads/"/>
+    <updated>2012-02-02T20:00:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/02/02/access_website_bypass_ads</id>
+    <content type="html"><![CDATA[<p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
+最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
+搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[开博第一篇:部署Typo到Ｈeroku上]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/"/>
+    <updated>2012-01-05T20:00:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/01/05/deploy_blog_to_heroku_using_Typo</id>
+    <content type="html"><![CDATA[<p>最近一直在折腾自己的私人博客，花了几天时间在自己机器上把<a href="https://github.com/fdv/typo">Typo</a>跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机<a href="http://www.heroku.com" title="">Heroku</a>做的很不错，就它了。</p>
+
+<p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
+
+<!--more-->
+
+
+<ol>
+<li><p>获取源码<br/>
+下载最新的Typo的<a href="https://github.com/fdv/typo.git">源码</a></p>
+
+<pre><code> git clone https://github.com/fdv/typo.git
+</code></pre></li>
+<li><p>在config/目录下新建文件preinitializer.rb，文件内容如下（防止写文件）</p>
+
+<pre><code> require fileutils
+ file_utils_no_write = FileUtils::NoWrite
+ Object.send :remove_const, :FileUtils
+ FileUtils = file_utils_no_write
+</code></pre></li>
+<li><p>修改<code>vendor/plugins/easy-ckeditor/init.rb</code>，注释掉两行代码（<em>这个很重要，防止ckeditor写文件造成网站崩溃</em>）</p>
+
+<pre><code> require ckeditor_file_utils
+ #CkeditorFileUtils.check_and_install
+</code></pre></li>
+<li><p>修改config/enviroments/production.rb文件（之前存在侥幸心理，没有修改这一行，事实证明是不行的）</p>
+
+<pre><code> config.action_controller.perform_caching = false
+</code></pre></li>
+<li><p>修改数据库配置文件config/database.yml.example，重命名为database.yml。
+可以在配置文件中指定要连接的数据库，默认是typo_dev，指定方法：database：yourdatabase
+Typo默认使用mysql作为本地数据库，heroku默认使用postgresql作为服务端数据库，可以同步，<em>但会出现中文乱码导致网站崩溃</em>。<br/>
+解决方法：换用<code>mysql2(0.2.18)</code> gem（在Gemfile中修改）<br/>
+先安装taps：</p>
+
+<pre><code> gem install taps
+</code></pre>
+
+上传：
+
+<pre><code> heroku db:push mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
+</code></pre>
+
+下载：
+
+<pre><code> heroku db:pull mysql://localdb_username:localdb_passwd@localhost/localdb_name?encoding=utf8
+</code></pre></li>
+<li><p>修改Gemfile<br/>
+Typo使用了一个比较灵活的Gemfile，可以在多个数据库adapter中选择一个，同时还支持debug。这些我都不需要，同时ruby-debug19在rvm下也无法编译通过，缺少头文件，所以我简化了一下Gemfile
+主要修改如下：<br/>
+修改source：<code>source http://ruby.taobao.org</code><br/>
+添加gem：<code>gem mysql2,0.2.18</code>，解决中文乱码导致网站崩溃问题，最新的mysql2是配合rails3.1.x的，3.0.x只能使用0.2.x，得从rubygems上下载<br/>
+修改gem：<code>gem factory_girl</code>，去掉指定版本，taobao中无法下载老版本的gem包<br/>
+删除ruby-debug19，缺少头文件，无法编译过<br/>
+执行<code>bundle install</code>，生成Gemfile.lock文件</p></li>
+<li><p>执行本地数据迁移任务<br/>
+<code>rake db:migrate RAILS_ENV=production</code><br/>
+生成了三个文件（这个不重要，我是一股脑儿把所有文件都加入git库了）</p>
+
+<blockquote><p>db/schema.rb<br/>
+log/production.log<br/>
+public/javascripts/ckeditor/config.js</p></blockquote></li>
+<li><p>创建本地git版本库,将所有文件都添加到版本库中，特别注意有没有public/files/和tmp/cache/文件夹。这个好像与之前部署失败有关，最好在这两个文件夹下面都建立一个.gitkeep文件（<em>与崩溃有关系</em>）</p>
+
+<pre><code> mkdir -p public/files tmp/cache
+ touch public/files/.gitkeep tmp/cache/.gitkeep
+ git add -f public/files/.gitkeep tmp/cache/.gitkeep
+</code></pre></li>
+<li><p>部署到Heroku上</p>
+
+<pre><code> heroku create yourwebname
+ git push heroku master
+ heroku rake db:migrate
+</code></pre>
+
+<p>执行到最后一个数据迁移任务103_really_update_existing_articles_with_nil_or_empty_post_type.rb时会失败，这个好像没啥影响</p></li>
+<li><p>大功告成，赶快浏览下吧</p>
+
+<pre><code>heroku open
+</code></pre>
+
+<p>或者手动输入URL: http://yourwebname.heroku.com</p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>
