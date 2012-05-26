@@ -3,7 +3,7 @@ layout: post
 title: "彻底解决WebRequest的GetResponse阻塞问题"
 date: 2012-02-16 20:00
 comments: true
-categories: 
+categories: [Code]
 ---
 第一版
 {% gist 1844714 WebResponse_block_first.cs %}

@@ -3,7 +3,7 @@ layout: post
 title: "[转]linux-编辑器-vi-emacs-grep-gawk-sed等"
 date: 2012-02-07 20:00
 comments: true
-categories: 
+categories: [Linux]
 ---
 <p>
 	<span style="color:#6666CC"><strong><span style="font-size:18px">第１章：vi(vim) －visual editor (improve)</span></strong></span></p>

@@ -3,7 +3,7 @@ layout: post
 title: "[转]如何优雅的升级ruby项目"
 date: 2012-02-12 20:00
 comments: true
-categories: 
+categories: [Ruby]
 ---
 一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。
 

@@ -3,7 +3,7 @@ layout: post
 title: "C# 非UI线程通知关闭UI时的异常处理"
 date: 2012-05-25 19:59
 comments: true
-categories: 
+categories: [Code]
 ---
 C#中非UI线程正常情况下无法操作UI控件，一般使用委托的方式访问这些控件。  
 示例代码：

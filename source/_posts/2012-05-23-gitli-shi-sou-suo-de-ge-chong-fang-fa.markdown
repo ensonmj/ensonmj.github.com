@@ -3,7 +3,7 @@ layout: post
 title: "git历史搜索的各种方法"
 date: 2012-05-23 20:09
 comments: true
-categories: 
+categories: [Git]
 ---
 * 搜索提交日志
 

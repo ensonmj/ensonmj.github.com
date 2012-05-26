@@ -3,7 +3,7 @@ layout: post
 title: "多线程断点续传之下载"
 date: 2012-01-14 20:00
 comments: true
-categories: 
+categories: [Code]
 ---
 年底了，本该是个收官的时节，却因一个新项目搞得忙碌不堪，博客也一直无心顾及。这会儿忙里偷闲，正好整理整理最近的学习心得，也算做个年终总结吧。
 

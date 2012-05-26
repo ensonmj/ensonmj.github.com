@@ -3,7 +3,7 @@ layout: post
 title: "Arch HDMI 声音输出"
 date: 2012-05-04 22:36
 comments: true
-categories: 
+categories: [Linux]
 ---
 最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。
 <!--more-->

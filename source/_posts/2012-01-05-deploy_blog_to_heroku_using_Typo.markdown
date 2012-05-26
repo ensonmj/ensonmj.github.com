@@ -3,7 +3,7 @@ layout: post
 title: "开博第一篇:部署Typo到Ｈeroku上"
 date: 2012-01-05 20:00
 comments: true
-categories: 
+categories: [Web]
 ---
 最近一直在折腾自己的私人博客，花了几天时间在自己机器上把[Typo](https://github.com/fdv/typo)跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机[Heroku](http://www.heroku.com")做的很不错，就它了。
 
