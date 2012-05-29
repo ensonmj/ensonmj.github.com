@@ -5,13 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>C# 非UI线程通知关闭UI时的异常处理 - TechToy</title>
+  <title>TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="C#中非UI线程正常情况下无法操作UI控件，一般使用委托的方式访问这些控件。
-示例代码： private void DelegateHandler()
-{ if (this.InvokeRequired) { this.Invoke(new MethodInvoker( delegate() { &hellip;">
+  <meta name="description" content="最近一直在折腾自己的私人博客，花了几天时间在自己机器上把Typo跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机Heroku做的很不错，就它了。 本以为很容易就可以搞定的事， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -20,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/page/2">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -76,12 +74,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div>
-<article class="hentry" role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
     
-      <h1 class="entry-title">C# 非UI线程通知关闭UI时的异常处理</h1>
+      <h1 class="entry-title"><a href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/">开博第一篇:部署Typo到Ｈeroku上</a></h1>
     
     
       <p class="meta">
@@ -97,148 +98,38 @@
   
 
 
-<time datetime="2012-05-25T19:59:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
+<time datetime="2012-01-05T20:00:00+08:00" pubdate data-updated="true">Jan 5<span>th</span>, 2012</time>
         
-         | <a href="#disqus_thread">Comments</a>
+         | <a href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>C#中非UI线程正常情况下无法操作UI控件，一般使用委托的方式访问这些控件。<br/>
-示例代码：</p>
+  <div class="entry-content"><p>最近一直在折腾自己的私人博客，花了几天时间在自己机器上把<a href="https://github.com/fdv/typo">Typo</a>跑起来了，尝试了一下，还挺不错。不过，博客放在自己机器上别人就没法访问就变成了日记，这可不是我的本意。于是开始研究怎么把博客放到公网上。放狗一搜，支持RoR的免费虚拟主机<a href="http://www.heroku.com" title="">Heroku</a>做的很不错，就它了。</p>
 
-<pre><code>private void DelegateHandler()
-{
-    if (this.InvokeRequired)
-    {
-        this.Invoke(new MethodInvoker(
-            delegate()
-            {
-                this.DoSomething();
-            }));
-    }
-    else
-    {
-        this.DoSomething();
-    }
-}
-</code></pre>
+<p>本以为很容易就可以搞定的事，结果折腾了好几天。由于Heroku的只读文件系统限制，刚开始Typo一上传上去就崩溃，根本没法运行，搞的我差点想放弃。怎么办呢，问题总有解决的办法，继续放狗吧。不得不说，狗是人类的好基友啊，作为天朝子民，忍不住要吐槽，擦，擦，擦。言归正传，最后搜到一篇<a href="https://huydinh.eu/2011/07/22/typo-on-heroku" title="">博文</a>，按照它的说明，总算搞定了。记录一下将Typo部署到heroku的完整过程。</p>
 
-<!--more-->
-
-
-<p>按照此模式，外部通知关闭UI的委托处理逻辑就应该如下：</p>
-
-<pre><code>private void CloseFormDelegateHandler()
-{
-    if (this.InvokeRequired)
-    {
-        this.Invoke(new MethodInvoker(
-            delegate()
-            {
-                this.Close();
-            }));
-    }
-    else
-    {
-        this.Close();
-    }
-}
-</code></pre>
-
-<p>但此段代码有可能会造成程序崩溃，这是一个MS的bug，详情请查看此<a href="https://connect.microsoft.com/VisualStudio/feedback/details/560637/exception-invoke-or-begininvoke-cannot-be-called-on-a-control-until-the-window-handle-has-been-created-is-thrown">链接</a>，MS的建议是 <code>catch and swallow the ObjectDisposedException when you calls Control.Invoke() to dispose a control from another thread.</code> 这个建议其实也是有问题的，事实上抛出来的异常是<code>InvalidOperationException</code>，所以应该捕获并吞掉此异常。完整的代码如下：</p>
-
-<pre><code>    private void CloseFormDelegateHandler()
-    {
-        if (this.InvokeRequired)
-        {
-            try
-            {
-                this.Invoke(new MethodInvoker(
-                    delegate()
-                    {
-                        this.Close();
-                    }));
-            }
-            catch (ObjectDisposedException ex)
-            {
-                Trace.TraceInformation("微软的建议:{0}",ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                Trace.TraceInformation("莫惊慌，微软的bug:{0}",ex.Message);
-            }
-        }
-        else
-        {
-            this.Close();
-        }
-    }
-</code></pre>
 </div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
-
-      
-
-
-
-
-
-
-
-
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/01/05/deploy_blog_to_heroku_using_Typo/">Read on &rarr;</a>
+    </footer>
   
 
 
-<time datetime="2012-05-25T19:59:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
-      
-
-<span class="categories">
+    </article>
   
-    <a class='category' href='/blog/categories/code/'>Code</a>
-  
-</span>
-
-
-    </p>
+  <div class="pagination">
     
-      <div class="sharing">
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-</div>
-
+    <a href="/blog/archives">Blog Archives</a>
     
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/" title="Previous Post: git历史搜索的各种方法">&laquo; git历史搜索的各种方法</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/" title="Next Post: git-svn 标准模式克隆的问题">git-svn 标准模式克隆的问题 &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
-
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
 </div>
-  </section>
-
-</div>
-
 <aside class="sidebar">
   
     <section>
@@ -294,7 +185,6 @@
   
 </aside>
 
-
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -309,10 +199,7 @@
       var disqus_shortname = 'techtoy';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

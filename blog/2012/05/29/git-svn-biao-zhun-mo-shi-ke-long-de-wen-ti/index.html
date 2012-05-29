@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>[转]如何优雅的升级ruby项目 - TechToy</title>
+  <title>git-svn 标准模式克隆的问题 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。 但是从最近的一个帖子发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种: optimistic[ &hellip;">
+  <meta name="description" content="公司采用svn托管代码，个人比较偏向于使用更加灵活的Git。由于项目代码包括windows客户端，linux后台，以及web客户端，很自然的形成三个文件夹： project/Trunk/windows project/Trunk/linux project/Trunk/web
+project/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/12/update_ruby_project">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -79,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">[转]如何优雅的升级ruby项目</h1>
+      <h1 class="entry-title">Git-svn 标准模式克隆的问题</h1>
     
     
       <p class="meta">
@@ -95,7 +96,7 @@
   
 
 
-<time datetime="2012-02-12T20:00:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
+<time datetime="2012-05-29T22:04:00+08:00" pubdate data-updated="true">May 29<span>th</span>, 2012</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -104,68 +105,59 @@
   </header>
 
 
-<div class="entry-content"><p>一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。</p>
+<div class="entry-content"><p>公司采用svn托管代码，个人比较偏向于使用更加灵活的Git。由于项目代码包括windows客户端，linux后台，以及web客户端，很自然的形成三个文件夹：</p>
 
-<p>但是从最近的一个<a href="http://ruby-china.org/topics/172">帖子</a>发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种:</p>
-
-<pre><code>optimistic[乐观]
-pessimistic[悲观]
-super pessimistic[超级悲观]
+<pre><code>project/Trunk/windows  
+project/Trunk/linux  
+project/Trunk/web
+project/Branches/V2/windows
+project/Branches/V2/linux
+project/Branches/V2/web
+...
 </code></pre>
 
 <!--more-->
 
 
-<p>以nokogiri这个gem为例：</p>
+<p>本人目前主要负责windows客户端开发，对于其他两个文件夹下的代码不关心，所以以前克隆代码只克隆windows目录下的，一条命令搞定：</p>
 
-<pre><code>gem ‘nokogiri’ #optimistic 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #optimistic 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #pessimistic 
-gem ‘nokogiri’, ‘~&gt;1.4’ #pessimistic 
-gem ‘nokogiri’, ‘1.4.2’ # super pessimistic 
+<pre><code>git svn clone svn://server/repo/project/Trunk/windows
 </code></pre>
 
-<p>第一种方式很少人采用，因为一旦升级很容易因为API不兼容导致你的项目爆掉。</p>
+<p>最近一直在阅读蒋鑫的《Git权威指南》,个人认为这应该算是国内关于Git写的做好的一本书了。书中也提到了<code>git-svn</code>克隆svn代码的一些细节。于是心血来潮，想照着书练习一下，练习对象自然就是项目代码了。</p>
 
-<p>主要分歧在第二种和第三种。选择第三种方案（super pessimistic）的观点通常是锁定版本号稳定，升级会带来麻烦，以前升级出现过问题，求稳等各种原因。</p>
+<p>第一次我使用了这样一条命令：</p>
 
-<p>我比较推荐第三种（pessimistic）升级方式。</p>
-
-<p>先解释下<code>&gt;=1.4.2</code>、<code>~&gt;1.4.2</code>、<code>1.4.2</code>之间的区别：</p>
-
-<pre><code>gem ‘nokogiri’ #任何版本 
-gem ‘nokogiri’, ‘&gt;=1.4.2’ #任何大于等于1.4.2的版本 
-gem ‘nokogiri’, ‘~&gt;1.4.2’ #大于等于1.4.2并且小于1.5.0版本 (推荐）
-gem ‘nokogiri’, ‘~&gt;1.4’ #大于等于1.4.0并且小于2.0.0版本 
-gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2 
+<pre><code>git svn clone svn://server/repo/project
 </code></pre>
 
-<p>还要说明一下Ruby gem采用的<a href="http://semver.org/">Semantic Versioning</a></p>
+<p>克隆下载的代码组织方式很奇怪，看着很像svn的组织方式：</p>
 
-<p>还拿nokogiri 1.4.2为例：</p>
-
-<pre><code>1 → Major版本，在接口重构情况下Major Version会增加，API不一定向后兼容
-4 → Minor版本，在增加新特性情况下Minor Version会增加，并且 API保持向后兼容
-2 → Patch版本，在bug fix的情况下Patch Version会增加，并且API保持向后兼容
+<pre><code>project/Trunk/windows  
+project/Trunk/linux  
+project/Trunk/web
+project/Branches/V2/windows
+project/Branches/V2/linux
+project/Branches/V2/web
+...
 </code></pre>
 
-<p>可见，使用第三种方式升级方便，不需要修改Gemfile，直接运行bundle update，所有的gem升级到最新，如果需要升级gem的主版本号才需要更改Gemfile。与第二种比较，优点是： 既不会出现API不兼容问题，又会及时升级到没有bug的版本。</p>
+<p>使用<code>git branch -a</code>查看，只有一个默认的<code>master</code>分支。</p>
 
-<p>而指定版本号的方式需要知道最新版本是多少，并且一个一个的改版本号。增加了升级的复杂度。而实际上锁定版本号的项目几乎没人去升级…</p>
+<p>于是又尝试其他的方式：</p>
 
-<p>Bundler的FAQ也提到锁定版本号的缺点：<a href="http://gembundler.com/rationale.html">FAQ: Why Can’t I Just Specify Only = Dependencies?</a></p>
+<pre><code>git svn clone -s svn://server/repo/project
+git svn clone svn://server/repo/project -T trunk -b branches -t tags
+</code></pre>
 
-<p>FAQ:</p>
+<p>结果这两种写法的结果倒是很一致，就创建了个本地仓库，啥代码也没下下来。</p>
 
-<p>问：gem作者不遵守semver规则怎么办？</p>
+<p>最后采用下面的写法成功克隆了整个版本库（代码库大了，时间很长）:</p>
 
-<p>答：放弃使用他的gem！这也应该成为选择gem的衡量标准之一。曾经rubygems自己没有遵守这个规则，1.8.x系列修改了Public API导致大量gem安装出现问题。 Loren Segal 从rubygems fork出了<a href="http://gnuu.org/2011/06/01/slimgems-a-drop-in-replacement-for-rubygems/">SlimGems</a>，并且承诺长期维护和1.3.7兼容的API。</p>
+<pre><code>git svn clone svn://server/repo/project -T Trunk -b Branches -t Tags
+</code></pre>
 
-<p>问：如果升级Patch版本号真的出现问题了怎么办？</p>
-
-<p>答：哪个gem出问题了找到问题的原因解决问题，如果解决不了可以不升级那个gem</p>
-
-<p>本文转载过程中，稍作修改，原文地址：<a href="http://rubyeye.herokuapp.com/articles/27">http://rubyeye.herokuapp.com/articles/27</a></p>
+<p>对比一下就会发现区别仅在于大小写不一样。<code>git-svn</code>默认采用的小写字母开头的<code>trunk,branches,tags</code>，而公司代码库使用的是大写字母开头的<code>Trunk,Branches,Tags</code>，不知道svn关于这个是否有什么规定。</p>
 </div>
 
 
@@ -188,12 +180,12 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
   
 
 
-<time datetime="2012-02-12T20:00:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
+<time datetime="2012-05-29T22:04:00+08:00" pubdate data-updated="true">May 29<span>th</span>, 2012</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/ruby/'>Ruby</a>
+    <a class='category' href='/blog/categories/git/'>Git</a>
   
 </span>
 
@@ -211,10 +203,8 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/02/07/linux_editor/" title="Previous Post: [转]linux-编辑器-vi-emacs-grep-gawk-sed等">&laquo; [转]linux-编辑器-vi-emacs-grep-gawk-sed等</a>
+        <a class="basic-alignment left" href="/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/" title="Previous Post: C# 非UI线程通知关闭UI时的异常处理">&laquo; C# 非UI线程通知关闭UI时的异常处理</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/02/16/webrequest_getresponse_block/" title="Next Post: 彻底解决WebRequest的GetResponse阻塞问题">彻底解决WebRequest的GetResponse阻塞问题 &raquo;</a>
       
     </p>
   </footer>
@@ -299,8 +289,8 @@ gem ‘nokogiri’, ‘1.4.2’ # 只能等于1.4.2
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/02/12/update_ruby_project/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/02/12/update_ruby_project/';
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/';
         var disqus_script = 'embed.js';
       
     (function () {

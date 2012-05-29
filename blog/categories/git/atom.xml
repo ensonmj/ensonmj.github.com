@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Git | TechToy]]></title>
   <link href="http://ensonmj.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-05-28T22:35:19+08:00</updated>
+  <updated>2012-05-29T22:34:36+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[git-svn 标准模式克隆的问题]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/"/>
+    <updated>2012-05-29T22:04:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti</id>
+    <content type="html"><![CDATA[<p>公司采用svn托管代码，个人比较偏向于使用更加灵活的Git。由于项目代码包括windows客户端，linux后台，以及web客户端，很自然的形成三个文件夹：</p>
+
+<pre><code>project/Trunk/windows  
+project/Trunk/linux  
+project/Trunk/web
+project/Branches/V2/windows
+project/Branches/V2/linux
+project/Branches/V2/web
+...
+</code></pre>
+
+<!--more-->
+
+
+<p>本人目前主要负责windows客户端开发，对于其他两个文件夹下的代码不关心，所以以前克隆代码只克隆windows目录下的，一条命令搞定：</p>
+
+<pre><code>git svn clone svn://server/repo/project/Trunk/windows
+</code></pre>
+
+<p>最近一直在阅读蒋鑫的《Git权威指南》,个人认为这应该算是国内关于Git写的做好的一本书了。书中也提到了<code>git-svn</code>克隆svn代码的一些细节。于是心血来潮，想照着书练习一下，练习对象自然就是项目代码了。</p>
+
+<p>第一次我使用了这样一条命令：</p>
+
+<pre><code>git svn clone svn://server/repo/project
+</code></pre>
+
+<p>克隆下载的代码组织方式很奇怪，看着很像svn的组织方式：</p>
+
+<pre><code>project/Trunk/windows  
+project/Trunk/linux  
+project/Trunk/web
+project/Branches/V2/windows
+project/Branches/V2/linux
+project/Branches/V2/web
+...
+</code></pre>
+
+<p>使用<code>git branch -a</code>查看，只有一个默认的<code>master</code>分支。</p>
+
+<p>于是又尝试其他的方式：</p>
+
+<pre><code>git svn clone -s svn://server/repo/project
+git svn clone svn://server/repo/project -T trunk -b branches -t tags
+</code></pre>
+
+<p>结果这两种写法的结果倒是很一致，就创建了个本地仓库，啥代码也没下下来。</p>
+
+<p>最后采用下面的写法成功克隆了整个版本库（代码库大了，时间很长）:</p>
+
+<pre><code>git svn clone svn://server/repo/project -T Trunk -b Branches -t Tags
+</code></pre>
+
+<p>对比一下就会发现区别仅在于大小写不一样。<code>git-svn</code>默认采用的小写字母开头的<code>trunk,branches,tags</code>，而公司代码库使用的是大写字母开头的<code>Trunk,Branches,Tags</code>，不知道svn关于这个是否有什么规定。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[git历史搜索的各种方法]]></title>
@@ -35,7 +96,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log --grep "arch hdmi"<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#58;&#x65;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#64;&#103;&#109;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#101;&#x6e;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#99;&#x6f;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x65;&#110;&#115;&#x6f;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#109;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#x6d;">&#101;&#110;&#115;&#111;&#110;&#109;&#x6a;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -52,13 +113,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G"Arch HDMI"<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#101;&#110;&#115;&#x6f;&#x6e;&#109;&#106;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#99;&#x6f;&#x6d;">&#101;&#110;&#x73;&#x6f;&#x6e;&#109;&#106;&#64;&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#58;&#101;&#x6e;&#x73;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#x67;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#x6f;&#x6d;">&#x65;&#110;&#x73;&#x6f;&#x6e;&#109;&#x6a;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#109;&#x61;&#x69;&#108;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#111;&#110;&#109;&#x6a;&#64;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#101;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#64;&#103;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x65;&#x6e;&#x73;&#111;&#x6e;&#109;&#106;&#64;&#x67;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#109;">&#x65;&#x6e;&#x73;&#x6f;&#x6e;&#109;&#x6a;&#x40;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
