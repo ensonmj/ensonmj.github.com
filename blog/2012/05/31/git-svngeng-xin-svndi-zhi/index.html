@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Arch HDMI 声音输出 - TechToy</title>
+  <title>git-svn更新svn地址 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。 按照Arch &hellip;">
+  <meta name="description" content="今天一个项目的svn地址发生了变化，如果本地使用svn客户端，比如tortoise-svn，可以直接relocate更新地址，但我一直使用git-svn管理项目代码，这个变换svn地址可就没那么容易了。 网上搜了下，git的wiki里面介绍了三种方法：第一种发送比较繁琐，但好像是使用最广泛的， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/05/31/git-svngeng-xin-svndi-zhi">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -79,7 +79,7 @@
   
   <header>
     
-      <h1 class="entry-title">Arch HDMI 声音输出</h1>
+      <h1 class="entry-title">Git-svn更新svn地址</h1>
     
     
       <p class="meta">
@@ -95,7 +95,7 @@
   
 
 
-<time datetime="2012-05-04T22:36:00+08:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+<time datetime="2012-05-31T19:33:00+08:00" pubdate data-updated="true">May 31<span>st</span>, 2012</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -104,47 +104,41 @@
   </header>
 
 
-<div class="entry-content"><p>最近又开始习惯性折腾了，这次折腾的对象是HDMI的音频输出。自从上次显卡的DVI接口导致电脑自动重启之后就开始使用HDMI接口连接显示器了。HDMI是可以同时传输视频和音频信号的，正好我的显示器也自带扬声器，可以充分利用起来。但理想很丰满，现实却很骨感，测试无法输出声音。</p>
+<div class="entry-content"><p>今天一个项目的svn地址发生了变化，如果本地使用svn客户端，比如tortoise-svn，可以直接relocate更新地址，但我一直使用git-svn管理项目代码，这个变换svn地址可就没那么容易了。</p>
 
-<!--more-->
+<p>网上搜了下，git的<a href="https://git.wiki.kernel.org/index.php/GitSvnSwitch">wiki</a>里面介绍了三种方法：第一种发送比较繁琐，但好像是使用最广泛的，因为好多搜索结果都是使用的此方法；第二种方法引自与<a href="http://translate.org.za/blogs/wynand/en/content/changing-your-svn-repository-address-git-svn-setup">winterstream&#8217;s blog</a>；第三种方法一看也比较繁琐，最终决定使用第二种方法。</p>
+
+<p>详细阅读了下winterstream的方法，具体步骤可以概括为三步：</p>
+
+<ol>
+<li>使用<code>git-filter-branch</code>修改所有提交消息中的旧地址为新地址（git-svn-id那行记录）</li>
+<li>删除.git/svn文件夹，下次使用<code>git svn rebase</code>更新代码时，会自动重建</li>
+<li>编辑.git/config中的<code>svn-remote.svn.url</code>指向新地址</li>
+</ol>
 
 
-<p>按照Arch Wiki上有关<a href="https://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture">ALSA</a>和<a href="https://wiki.archlinux.org/index.php/PulseAudio">PulseAudio</a>的说明跑了一遍，电脑上现有的声音输出设备如下：</p>
+<p>其中第一步中<code>git-filter-branch</code>命令需要用到版本库所有的<code>refs</code>作为参数，winterstream使用的方法略显繁琐（优秀的程序员都是懒惰的，<sup>_<sup>)，其实可以有更简单的做法。</sup></sup></p>
 
-<pre><code>$aplay -l
-**** List of PLAYBACK Hardware Devices ****　
-card 0: NVidia [HDA NVidia], device 3: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 7: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 0/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 8: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 0: NVidia [HDA NVidia], device 9: HDMI 0 &gt; [HDMI 0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: PCH [HDA Intel PCH], device 0: ALC889 &gt; Analog [ALC889 Analog]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: PCH [HDA Intel PCH], device 1: ALC889 &gt; Digital [ALC889 Digital]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-</code></pre>
+<p>最终，我切换svn地址的整个操作流程如下：</p>
 
-<p>然后测试哪个能输出声音，我的显卡是card 0,device 7能真正的输出声音。</p>
+<ol>
+<li><p>备份版本库，以防万一，毕竟是第一次尝试。</p>
 
-<pre><code>$aplay -D plughw:0,7 /usr/share/sounds/alsa/Noise.wav 
-Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono
-</code></pre>
+<p> cp -r local-proj local-proj-bak</p></li>
+<li><p>修改所有的提交消息（注意最后的参数）</p>
 
-<p>到这儿说明硬件都没有问题，但为什么默认不能使用呢？后来搜索到问题的原因：PulseAudio默认只会创建一个HDMI的输出设备,具体到我的电脑对应于card 0,device 3,所以无法听到声音。最终的解决办法是编辑<code>/etc/pulse/default.pa</code>文件，找到相应的加载模块的地方，添加一行：</p>
+<p> git filter-branch &#8211;msg-filter &#8216;sed &#8220;/s/older-url/new-url/g&#8221;&#8217; <strong>&#8211; &#8211;all</strong></p></li>
+<li><p>编辑.git/config文件，替换[svn-remote &#8220;svn&#8221;]中的url的值为新地址，保存退出。</p>
 
-<pre><code>load-module module-alsa-sink device=hw:0,7
-</code></pre>
+<p> git config -e</p></li>
+<li><p>删除.git/svn文件夹</p>
 
-<p>OK,大喇叭开始广播啦</p>
+<p> rm -rf .git/svn</p></li>
+<li><p>更新代码，此步会自动生产.git/svn文件夹，当然用户名、密码需要重新填写以下。</p>
+
+<p> git svn rebase</p></li>
+</ol>
+
 </div>
 
 
@@ -167,14 +161,8 @@ Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, R
   
 
 
-<time datetime="2012-05-04T22:36:00+08:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+<time datetime="2012-05-31T19:33:00+08:00" pubdate data-updated="true">May 31<span>st</span>, 2012</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/linux/'>Linux</a>
-  
-</span>
 
 
     </p>
@@ -190,10 +178,8 @@ Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, R
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/02/16/webrequest_getresponse_block/" title="Previous Post: 彻底解决WebRequest的GetResponse阻塞问题">&laquo; 彻底解决WebRequest的GetResponse阻塞问题</a>
+        <a class="basic-alignment left" href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/" title="Previous Post: git-svn 标准模式克隆的问题">&laquo; git-svn 标准模式克隆的问题</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/" title="Next Post: Arch HDMI声音输出（续）">Arch HDMI声音输出（续） &raquo;</a>
       
     </p>
   </footer>
@@ -278,8 +264,8 @@ Playing WAVE '/usr/share/sounds/alsa/Noise.wav' : Signed 16 bit Little Endian, R
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/';
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/05/31/git-svngeng-xin-svndi-zhi/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/05/31/git-svngeng-xin-svndi-zhi/';
         var disqus_script = 'embed.js';
       
     (function () {
