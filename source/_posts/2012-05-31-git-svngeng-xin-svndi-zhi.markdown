@@ -10,7 +10,7 @@ categories: [Git]
 网上搜了下，git的[wiki][1]里面介绍了三种方法：第一种发送比较繁琐，但好像是使用最广泛的，因为好多搜索结果都是使用的此方法；第二种方法引自与[winterstream's blog][2]；第三种方法一看也比较繁琐，最终决定使用第二种方法。
 
 详细阅读了下winterstream的方法，具体步骤可以概括为三步：
-
+<!--more-->
 1. 使用`git-filter-branch`修改所有提交消息中的旧地址为新地址（git-svn-id那行记录）
 2. 删除.git/svn文件夹，下次使用`git svn rebase`更新代码时，会自动重建
 3. 编辑.git/config中的`svn-remote.svn.url`指向新地址
