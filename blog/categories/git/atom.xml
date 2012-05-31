@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Git | TechToy]]></title>
   <link href="http://ensonmj.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-05-31T19:35:14+08:00</updated>
+  <updated>2012-05-31T19:39:14+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,49 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[git-svn更新svn地址]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/05/31/git-svngeng-xin-svndi-zhi/"/>
+    <updated>2012-05-31T19:33:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/05/31/git-svngeng-xin-svndi-zhi</id>
+    <content type="html"><![CDATA[<p>今天一个项目的svn地址发生了变化，如果本地使用svn客户端，比如tortoise-svn，可以直接relocate更新地址，但我一直使用git-svn管理项目代码，这个变换svn地址可就没那么容易了。</p>
+
+<p>网上搜了下，git的<a href="https://git.wiki.kernel.org/index.php/GitSvnSwitch">wiki</a>里面介绍了三种方法：第一种发送比较繁琐，但好像是使用最广泛的，因为好多搜索结果都是使用的此方法；第二种方法引自与<a href="http://translate.org.za/blogs/wynand/en/content/changing-your-svn-repository-address-git-svn-setup">winterstream's blog</a>；第三种方法一看也比较繁琐，最终决定使用第二种方法。</p>
+
+<p>详细阅读了下winterstream的方法，具体步骤可以概括为三步：</p>
+
+<ol>
+<li>使用<code>git-filter-branch</code>修改所有提交消息中的旧地址为新地址（git-svn-id那行记录）</li>
+<li>删除.git/svn文件夹，下次使用<code>git svn rebase</code>更新代码时，会自动重建</li>
+<li>编辑.git/config中的<code>svn-remote.svn.url</code>指向新地址</li>
+</ol>
+
+
+<p>其中第一步中<code>git-filter-branch</code>命令需要用到版本库所有的<code>refs</code>作为参数，winterstream使用的方法略显繁琐（优秀的程序员都是懒惰的，<sup>_<sup>)，其实可以有更简单的做法。</sup></sup></p>
+
+<p>最终，我切换svn地址的整个操作流程如下：</p>
+
+<ol>
+<li><p>备份版本库，以防万一，毕竟是第一次尝试。</p>
+
+<p> cp -r local-proj local-proj-bak</p></li>
+<li><p>修改所有的提交消息（注意最后的参数）</p>
+
+<p> git filter-branch --msg-filter 'sed "/s/older-url/new-url/g"' <strong>-- --all</strong></p></li>
+<li><p>编辑.git/config文件，替换[svn-remote "svn"]中的url的值为新地址，保存退出。</p>
+
+<p> git config -e</p></li>
+<li><p>删除.git/svn文件夹</p>
+
+<p> rm -rf .git/svn</p></li>
+<li><p>更新代码，此步会自动生产.git/svn文件夹，当然用户名、密码需要重新填写以下。</p>
+
+<p> git svn rebase</p></li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[git-svn 标准模式克隆的问题]]></title>
@@ -96,7 +139,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log --grep "arch hdmi"<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#101;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#99;&#111;&#109;">&#101;&#x6e;&#115;&#x6f;&#x6e;&#109;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#x65;&#110;&#x73;&#x6f;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#111;&#109;">&#x65;&#x6e;&#115;&#111;&#x6e;&#109;&#x6a;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -113,13 +156,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G"Arch HDMI"<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#101;&#110;&#x73;&#111;&#110;&#x6d;&#106;&#x40;&#103;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#109;">&#x65;&#110;&#115;&#x6f;&#x6e;&#x6d;&#106;&#x40;&#103;&#109;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#101;&#110;&#115;&#x6f;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#x65;&#x6e;&#115;&#111;&#110;&#x6d;&#106;&#x40;&#103;&#109;&#97;&#105;&#108;&#46;&#x63;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#101;&#x6e;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#99;&#111;&#x6d;">&#101;&#110;&#115;&#111;&#x6e;&#109;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#x69;&#x6c;&#x74;&#x6f;&#58;&#101;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#x40;&#103;&#x6d;&#97;&#x69;&#x6c;&#46;&#99;&#x6f;&#109;">&#101;&#110;&#115;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#x67;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#x6d;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
