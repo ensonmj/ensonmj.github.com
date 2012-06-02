@@ -9,7 +9,8 @@
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="年底了，本该是个收官的时节，却因一个新项目搞得忙碌不堪，博客也一直无心顾及。这会儿忙里偷闲，正好整理整理最近的学习心得，也算做个年终总结吧。 大概一个月前，偶然看到一篇博文，博主面试一位新员工，问断点续传该怎么实现。很不幸，那个被面试的哥们没答出来。我当时就在想，我要碰到这个估计也挂了， &hellip;">
+  <meta name="description" content="自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
+最近发现访问newsmth.net就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是pagead2. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +77,46 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
+        
+         | <a href="/blog/2012/02/02/access_website_bypass_ads/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
+最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
+搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -183,7 +224,7 @@
  <ul id="categories">
  <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
 <li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
-<li class='category'><a href='/blog/categories/linux/'>Linux (3)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (4)</a></li>
 <li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
 <li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
 
@@ -192,6 +233,10 @@
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
@@ -207,10 +252,6 @@
     
       <li class="post">
         <a href="/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/">git历史搜索的各种方法</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/">Arch HDMI声音输出（续）</a>
       </li>
     
   </ul>

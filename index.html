@@ -9,7 +9,7 @@
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="今天一个项目的svn地址发生了变化，如果本地使用svn客户端，比如tortoise-svn，可以直接relocate更新地址，但我一直使用git-svn管理项目代码，这个变换svn地址可就没那么容易了。 网上搜了下，git的wiki里面介绍了三种方法：第一种发送比较繁琐，但好像是使用最广泛的， &hellip;">
+  <meta name="description" content="本文转自http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html，在原文基础上稍加排版，纯属收藏 一、inode是什么？ 理解inode，要从文件储存说起。文件储存在硬盘上，硬盘的最小存储单位叫做&#8221;扇区&#8221;（ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,57 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux Inode 介绍</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-02T21:13:00+08:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2012</time>
+        
+         | <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本文转自<a href="http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html">http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html</a>，在原文基础上稍加排版，纯属收藏</p>
+
+<p>一、inode是什么？</p>
+
+<p>理解inode，要从文件储存说起。文件储存在硬盘上，硬盘的最小存储单位叫做&#8221;扇区&#8221;（Sector）。每个扇区储存512字节（相当于0.5KB）。</p>
+
+<p>操作系统读取硬盘的时候，不会一个个扇区地读取，这样效率太低，而是一次性连续读取多个扇区，即一次性读取一个&#8221;块&#8221;（block）。这种由多个扇区组成的&#8221;块&#8221;，是文件存取的最小单位。&#8221;块&#8221;的大小，最常见的是4KB，即连续八个 sector组成一个 block。</p>
+
+<p>文件数据都储存在&#8221;块&#8221;中，那么很显然，我们还必须找到一个地方储存文件的元信息，比如文件的创建者、文件的创建日期、文件的大小等等。这种储存文件元信息的区域就叫做inode，中文译名为&#8221;索引节点&#8221;。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -284,7 +335,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#101;&#x6e;&#x73;&#111;&#x6e;&#109;&#106;&#64;&#x67;&#x6d;&#97;&#105;&#108;&#46;&#x63;&#x6f;&#109;">&#x65;&#x6e;&#115;&#x6f;&#x6e;&#109;&#x6a;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#x6f;&#58;&#101;&#110;&#115;&#x6f;&#x6e;&#109;&#x6a;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;">&#101;&#110;&#x73;&#x6f;&#x6e;&#109;&#x6a;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -301,13 +352,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#111;&#58;&#x65;&#x6e;&#x73;&#111;&#110;&#109;&#106;&#64;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#x65;&#x6e;&#115;&#111;&#x6e;&#109;&#x6a;&#64;&#103;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#101;&#110;&#115;&#111;&#110;&#109;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#101;&#x6e;&#115;&#111;&#x6e;&#x6d;&#x6a;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#58;&#101;&#110;&#115;&#x6f;&#110;&#x6d;&#106;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#109;">&#101;&#x6e;&#x73;&#111;&#110;&#109;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#101;&#110;&#115;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#x73;&#x6f;&#x6e;&#x6d;&#x6a;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#109;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
@@ -586,46 +637,6 @@ super pessimistic[超级悲观]
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/02/02/access_website_bypass_ads/">加快网页加载速度方法之过滤广告</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-02T20:00:00+08:00" pubdate data-updated="true">Feb 2<span>nd</span>, 2012</time>
-        
-         | <a href="/blog/2012/02/02/access_website_bypass_ads/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>自从google将大部分业务搬离中国大陆之后，google的好多服务不是都要被GFW给强奸一下，造成无法访问或速度巨慢。
-最近发现访问<code>newsmth.net</code>就出现了加载速度过慢的情况，刚开始懒得折腾，今天实在忍不了了。于是用firebug看了下，发现是<code>pagead2.googlesyndication.com/pagead/show_ads.js</code>这个地址加载比较慢。既然找到问题的关键了，那接下来就简单了，直接用<code>adblockplus</code>把这个地址屏蔽掉。
-搞定之后，再刷新页面，以前嗖嗖的感觉又回来了。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -641,7 +652,7 @@ super pessimistic[超级悲观]
  <ul id="categories">
  <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
 <li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
-<li class='category'><a href='/blog/categories/linux/'>Linux (3)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (4)</a></li>
 <li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
 <li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
 
@@ -650,6 +661,10 @@ super pessimistic[超级悲观]
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
@@ -665,10 +680,6 @@ super pessimistic[超级悲观]
     
       <li class="post">
         <a href="/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/">git历史搜索的各种方法</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/">Arch HDMI声音输出（续）</a>
       </li>
     
   </ul>

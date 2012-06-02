@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[转]Linux inode 介绍 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="本文转自http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html，在原文基础上稍加排版，纯属收藏 一、inode是什么？ 理解inode，要从文件储存说起。文件储存在硬盘上，硬盘的最小存储单位叫做&#8221;扇区&#8221;（ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/06/02/zhuan-linux-inode-jie-shao">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32150918-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[转]Linux Inode 介绍</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-02T21:13:00+08:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>本文转自<a href="http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html">http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html</a>，在原文基础上稍加排版，纯属收藏</p>
+
+<p>一、inode是什么？</p>
+
+<p>理解inode，要从文件储存说起。文件储存在硬盘上，硬盘的最小存储单位叫做&#8221;扇区&#8221;（Sector）。每个扇区储存512字节（相当于0.5KB）。</p>
+
+<p>操作系统读取硬盘的时候，不会一个个扇区地读取，这样效率太低，而是一次性连续读取多个扇区，即一次性读取一个&#8221;块&#8221;（block）。这种由多个扇区组成的&#8221;块&#8221;，是文件存取的最小单位。&#8221;块&#8221;的大小，最常见的是4KB，即连续八个 sector组成一个 block。</p>
+
+<p>文件数据都储存在&#8221;块&#8221;中，那么很显然，我们还必须找到一个地方储存文件的元信息，比如文件的创建者、文件的创建日期、文件的大小等等。这种储存文件元信息的区域就叫做inode，中文译名为&#8221;索引节点&#8221;。</p>
+
+<!--more-->
+
+
+<p>
+二、inode的内容</p>
+
+<p>inode包含文件的元信息，具体来说有以下内容：</p>
+
+<blockquote><p>文件的字节数<br/>
+文件拥有者的User ID<br/>
+文件的Group ID<br/>
+文件的读、写、执行权限<br/>
+文件的时间戳，共有三个：ctime指inode上一次变动的时间，mtime指文件内容上一次变动的时间，atime指文件上一次打开的时间。<br/>
+链接数，即有多少文件名指向这个inode<br/>
+文件数据block的位置</p></blockquote>
+
+<p>可以用<code>stat</code>命令，查看某个文件的inode信息：</p>
+
+<pre><code>$stat example.txt 
+  File: ‘example.txt’
+  Size: 5           Blocks: 8          IO Block: 4096   regular file
+Device: 805h/2053d  Inode: 13771400    Links: 1
+Access: (0644/-rw-r--r--)  Uid: ( 1000/ ensonmj)   Gid: (  100/   users)
+Access: 2012-06-02 21:21:37.546284322 +0800
+Modify: 2012-06-02 21:22:02.769617202 +0800
+Change: 2012-06-02 21:22:02.769617202 +0800
+ Birth: -
+</code></pre>
+
+<p>总之，除了<strong>文件名</strong>以外的所有文件信息，都存在inode之中。至于为什么没有文件名，下文会有详细解释。</p>
+
+<p>三、inode的大小</p>
+
+<p>inode也会消耗硬盘空间，所以硬盘格式化的时候，操作系统自动将硬盘分成两个区域。一个是数据区，存放文件数据；另一个是inode区（inode table），存放inode所包含的信息。</p>
+
+<p>每个inode节点的大小，一般是128B或256B。inode节点的总数，在格式化时就给定，一般是每1KB或每2KB就设置一个inode。假定在一块1GB的硬盘中，每个inode节点的大小为128B，每1KB就设置一个inode，那么inode table的大小就会达到128MB，占整块硬盘的12.8%。</p>
+
+<p>查看每个硬盘分区的inode总数和已经使用的数量，可以使用<code>df</code>命令：</p>
+
+<pre><code>$df -i
+Filesystem       Inodes  IUsed    IFree IUse% Mounted on
+rootfs          6250496 325389  5925107    6% /
+/dev            1019935    624  1019311    1% /dev
+run             1020674    464  1020210    1% /run
+/dev/sda3       6250496 325389  5925107    6% /
+shm             1020674      6  1020668    1% /dev/shm
+/dev/sda5      14983168 116890 14866278    1% /home
+</code></pre>
+
+<p>查看每个inode节点的大小，可以用如下命令（这个命令在我本机执行失败）：</p>
+
+<pre><code>sudo dumpe2fs -h /dev/sda | grep "Inode size"
+</code></pre>
+
+<p>由于每个文件都必须有一个inode，因此有可能发生inode已经用光，但是硬盘还未存满的情况。这时，就无法在硬盘上创建新文件。</p>
+
+<p>四、inode号码</p>
+
+<p>每个inode都有一个号码，操作系统用inode号码来识别不同的文件。</p>
+
+<p>这里值得重复一遍，Unix/Linux系统内部不使用文件名，而使用inode号码来识别文件。对于系统来说，文件名只是inode号码便于识别的别称或者绰号。表面上，用户通过文件名，打开文件。实际上，系统内部这个过程分成三步：首先，系统找到这个文件名对应的inode号码；其次，通过inode号码，获取inode信息；最后，根据inode信息，找到文件数据所在的block，读出数据。</p>
+
+<p>使用<code>ls -i</code>命令，可以看到文件名对应的inode号码：</p>
+
+<pre><code>$ls -i example.txt 
+13771400 example.txt
+</code></pre>
+
+<p>五、目录文件</p>
+
+<p>Unix/Linux系统中，目录（directory）也是一种文件。打开目录，实际上就是打开目录文件。</p>
+
+<p>目录文件的结构非常简单，就是一系列目录项（dirent）的列表。每个目录项，由两部分组成：所包含文件的文件名，以及该文件名对应的inode号码。</p>
+
+<p><code>ls</code>命令只列出目录文件中的所有文件名：</p>
+
+<pre><code>ls
+</code></pre>
+
+<p>ls -i命令列出整个目录文件，即文件名和inode号码：</p>
+
+<pre><code>ls -i
+</code></pre>
+
+<p>如果要查看文件的详细信息，就必须根据inode号码，访问inode节点，读取信息。ls -l命令列出文件的详细信息。</p>
+
+<pre><code>ls -l
+</code></pre>
+
+<p>六、硬链接</p>
+
+<p>一般情况下，文件名和inode号码是&#8221;一一对应&#8221;关系，每个inode号码对应一个文件名。但是，Unix/Linux系统允许，<strong>多个文件名指向同一个inode号码</strong>。这意味着，可以用不同的文件名访问同样的内容；<strong>对文件内容进行修改，会影响到所有文件名</strong>；但是，<strong>删除一个文件名，不影响另一个文件名的访问</strong>。这种情况就被称为&#8221;硬链接&#8221;（hard link）。</p>
+
+<p><code>ln</code>命令可以创建硬链接：</p>
+
+<pre><code>ln 源文件 目标文件
+</code></pre>
+
+<p>运行上面这条命令以后，源文件与目标文件的inode号码相同，都指向同一个inode。inode信息中有一项叫做&#8221;链接数&#8221;，记录指向该inode的文件名总数，这时就会增加1。反过来，删除一个文件名，就会使得inode节点中的&#8221;链接数&#8221;减1。当这个值减到0，表明没有文件名指向这个inode，系统就会回收这个inode号码，以及其所对应block区域。</p>
+
+<p>这里顺便说一下目录文件的&#8221;链接数&#8221;。创建目录时，默认会生成两个目录项：&#8221;.&#8221;和&#8221;..&#8221;。前者的inode号码就是当前目录的inode号码，等同于当前目录的&#8221;硬链接&#8221;；后者的inode号码就是当前目录的父目录的inode号码，等同于父目录的&#8221;硬链接&#8221;。所以，任何一个目录的&#8221;硬链接&#8221;总数，总是等于2加上它的子目录总数（含隐藏目录）,这里的2是父目录对其的“硬链接”和当前目录下的&#8221;.硬链接“。</p>
+
+<p>七、软链接</p>
+
+<p>除了硬链接以外，还有一种特殊情况。文件A和文件B的inode号码虽然不一样，但是文件A的内容是文件B的路径。读取文件A时，系统会自动将访问者导向文件B。因此，无论打开哪一个文件，最终读取的都是文件B。这时，文件A就称为文件B的&#8221;软链接&#8221;（soft link）或者&#8221;符号链接（symbolic link）。</p>
+
+<p>这意味着，文件A依赖于文件B而存在，如果删除了文件B，打开文件A就会报错：&#8221;No such file or directory&#8221;。这是软链接与硬链接最大的不同：<strong>文件A指向文件B的文件名，而不是文件B的inode号码</strong>，文件B的inode&#8221;链接数&#8221;不会因此发生变化。</p>
+
+<p><code>ln -s</code>命令可以创建软链接。</p>
+
+<pre><code>ln -s 源文文件或目录 目标文件或目录
+</code></pre>
+
+<p>八、inode的特殊作用</p>
+
+<p>由于inode号码与文件名分离，这种机制导致了一些Unix/Linux系统特有的现象：</p>
+
+<ol>
+<li>有时，文件名包含特殊字符，无法正常删除。这时，直接删除inode节点，就能起到删除文件的作用。</li>
+<li>移动文件或重命名文件，只是改变文件名，不影响inode号码。</li>
+<li>打开一个文件以后，系统就以inode号码来识别这个文件，不再考虑文件名。因此，通常来说，系统无法从inode号码得知文件名。</li>
+</ol>
+
+
+<p>第3点使得软件更新变得简单，<strong>可以在不关闭软件的情况下进行更新，不需要重启</strong>。因为系统通过inode号码，识别运行中的文件，不通过文件名。更新的时候，新版文件以同样的文件名，生成一个新的inode，不会影响到运行中的文件。等到下一次运行这个软件的时候，文件名就自动指向新版文件，旧版文件的inode则被回收。</p>
+
+<p>九 实际问题</p>
+
+<p>在一台配置较低的Linux服务器（内存、硬盘比较小）的/data分区内创建文件时，系统提示磁盘空间不足，用<code>df -h</code>命令查看了一下磁盘使用情况，发现/data分区只使用了66%，还有12G的剩余空间，按理说不会出现这种问题。后来用<code>df -i</code>查看了一下/data分区的索引节点(inode)，发现已经用满(IUsed=100%)，导致系统无法创建新目录和文件。</p>
+
+<p>查找原因：<br/>
+/data/cache目录中存在数量非常多的小字节缓存文件，占用的block不多，但是占用了大量的inode。 <br/>
+解决方案：<br/>
+1、删除/data/cache目录中的部分文件，释放出/data分区的一部分inode。<br/>
+2、用软连接将空闲分区/opt中的newcache目录连接到/data/cache，使用/opt分区的inode来缓解/data分区inode不足的问题：</p>
+
+<pre><code>ln -s /opt/newcache /data/cache 
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-02T21:13:00+08:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>Linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/" title="Previous Post: git-svn更新svn地址">&laquo; git-svn更新svn地址</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+ <h1>Categories</h1>
+ <ul id="categories">
+ <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
+<li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (4)</a></li>
+<li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
+<li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
+
+ </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/">git-svn 标准模式克隆的问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/">C# 非UI线程通知关闭UI时的异常处理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/23/gitli-shi-sou-suo-de-ge-chong-fang-fa/">git历史搜索的各种方法</a>
+      </li>
+    
+  </ul>
+</section>
+<section id="comment_sidebar">
+<h1>近期评论</h1>
+
+<script type="text/javascript" src="http://techtoy.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=20"></script><a href="http://disqus.com/">Powered by Disqus</a>
+
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'techtoy';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/06/02/zhuan-linux-inode-jie-shao/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/06/02/zhuan-linux-inode-jie-shao/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
