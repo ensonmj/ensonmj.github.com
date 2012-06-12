@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-06-02T21:44:11+08:00</updated>
+  <updated>2012-06-12T23:50:00+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,162 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Arch使用systemd替换sysVinit]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/"/>
+    <updated>2012-06-12T20:34:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit</id>
+    <content type="html"><![CDATA[<p>忘了最早是怎么知道<code>systemd</code>的了，最近想起来折腾它还是因为无意中看到了Arch论坛上一篇<a href="https://bbs.archlinux.org/viewtopic.php?id=96316">帖子</a>，帖子内容跨度了两年，对于技术贴来说，我第一次见到。要想把整个帖子内容都看完有点不现实，大体上整个帖子就是在讨论Arch中怎么用<code>systemd</code>替换现有的<code>sysVinit</code>。</p>
+
+<p><code>systemd</code>是一个新的init系统，有关它的详细介绍参见Lennart的<a href="http://0pointer.de/blog/projects/systemd.html">blog</a>，文章很长，推荐技术宅们详细阅读下，看完你会觉得受益匪浅，甚至也许你就会像我一样迫不及待的想要尝试一下了。</p>
+
+<p>其实整个切换过程并不复杂，按照<a href="https://wiki.archlinux.org/index.php/Systemd">Arch wiki</a>上一步一步来就行了，我这里只是记录下我自己的整个操作过程，算是Wiki的中文简化版吧。</p>
+
+<h3>安装<code>systemd</code></h3>
+
+<pre><code>$sudo pacman -S systemd
+</code></pre>
+
+<p>Arch当前安装完会有一些提示，可以暂时不用管，后面会用到。</p>
+
+<pre><code>ln -s '/usr/lib/systemd/system/getty@.service' '/etc/systemd/system/getty.target.wants/getty@tty1.service'
+:: Append 'init=/bin/systemd' to your kernel command line in your
+   bootloader to replace sysvinit with systemd
+</code></pre>
+
+<!--more-->
+
+
+<h3>创建新的启动项以使用<code>systemd</code>管理整个系统</h3>
+
+<p>说一下我当前系统的环境，我现在使用的是Arch x86_64</p>
+
+<pre><code>$uname -a
+Linux ENSONMJ-PC **3.3.7-1-ARCH** #1 SMP PREEMPT Tue May 22 00:26:26 CEST 2012 x86_64 GNU/Linux
+</code></pre>
+
+<p>bootloader使用的是Grub，不是Grub2，根分区在第一块硬盘的第三个分区上，所以启动项的配置是修改<code>/boot/grub/menu.lst</code>文件，添加如下启动条目（参数因人而异，不能照抄）：</p>
+
+<pre><code># (0) Arch Linux
+title  Arch Linux [systemd]
+root   (hd0,**2**)
+kernel /boot/vmlinuz-linux root=/dev/sda**3** vga=795 ro **init=/bin/systemd**
+initrd /boot/initramfs-linux.img
+</code></pre>
+
+<h3>配置系统以使用native的systemd</h3>
+
+<p>这部分就是按照Wiki的说明按部就班的来：</p>
+
+<p>1）hostname 设置</p>
+
+<p>编辑<code>/etc/hostname</code>文件，里面写上你的hostname</p>
+
+<pre><code>YOUR_HOSTNAME
+</code></pre>
+
+<p>2）console and keymap 设置</p>
+
+<p>编辑<code>/etc/vconsole.conf</code>文件, 内容如下：</p>
+
+<pre><code>KEYMAP="us"
+FONT=lat9w-16 #rc.conf中留空了
+FONT_MAP=8859-1_to_uni #rc.conf中留空了
+</code></pre>
+
+<p>其实<code>FONT</code>和<code>FONT_MAP</code>在原来<code>/etc/rc.conf</code>中我都留空了，没有设置值，这里只是照抄了wiki，效果不好可以后续再调整；关KEYMAP的介绍可以参见<a href="https://wiki.archlinux.org/index.php/KEYMAP">Arch wiki</a>。</p>
+
+<p>3）locale 设置</p>
+
+<p>编辑<code>/etc/locale.conf</code>文件，内容如下：</p>
+
+<pre><code>LANG="en_US.UTF-8"
+LC_COLLATE="C"
+</code></pre>
+
+<p>4) timezone设置</p>
+
+<p>编辑<code>/etc/timezone</code>文件，内容如下：</p>
+
+<pre><code>Asia/Shanghai
+</code></pre>
+
+<p>注意：<code>systemd</code>不支持<code>localtime</code>，如果之前使用的是<code>localtime</code>（装双系统出于兼容windows的可能会这么设置），那么需要改为<code>utc</code>:</p>
+
+<pre><code>hwclock --systohc --utc
+</code></pre>
+
+<p>5) 配置内核模块</p>
+
+<p>如果需要在启动时加载内核模块，需要在<code>/etc/modules-load.d/</code>下创建相应的文件，我只用了个<code>kvm-intel</code>模块，某次鼓捣<code>kvm</code>的遗留产物，于是创建<code>/etc/modules-load.d/kvm.conf</code>文件，内容如下：</p>
+
+<pre><code>kvm-intel
+</code></pre>
+
+<p>其实文件名是可以任意取的，只要内容正确就行。同时还可以配置内核模块黑名单，有兴趣的自己研究，<a href="https://wiki.archlinux.org/index.php/Systemd#Configure_kernel_modules_blacklist">参考链接</a>，我暂不需要这功能。</p>
+
+<p>6）临时文件</p>
+
+<p>可以用来定义哪些文件该何时清理，这个未配置，有空再研究。</p>
+
+<p>7）日志</p>
+
+<p>从Version 38开始，<code>systemd</code>开始有了自带的日志系统，默认日志写入<code>/run/systemd/journal/</code>目录下,重启后会消失；如果需要非易失的日志,可以创建<code>/var/log/journal/</code>目录。另外也可以考虑将<code>systemd</code>的日志重定向到<code>syslog</code>中，不感兴趣。</p>
+
+<p>8）网络</p>
+
+<p>我适用NetWorkManager配置网络，启用<code>NetworkManager.service</code>就行</p>
+
+<pre><code>systemctl enable NetworkManager.service
+</code></pre>
+
+<p>9) 启用图形界面(默认）</p>
+
+<p><code>systemd</code>安装后，默认是适用图形界面的，此步可以省略了。</p>
+
+<pre><code>$ls -l /usr/lib/systemd/system/default.target 
+lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&gt; graphical.target
+</code></pre>
+
+<p>10) 使用DE(Display Manager),具体对于我来说就是<code>gdm</code></p>
+
+<p>目前需要安装AUR中的<code>systemd-arch-units</code>包</p>
+
+<pre><code>yaourt -S systemd-arch-units
+</code></pre>
+
+<p>然后启用<code>gdm.service</code>:</p>
+
+<pre><code>systemctl enable gdm.service
+</code></pre>
+
+<p>如果在<code>/etc/locale.conf</code>文件中设置了locale，则为了DE使用同样的locale，需要在<code>/etc/environment</code>文件中
+设置相应的系统级环境变量，其文件内容如下：</p>
+
+<pre><code>LANG="en_US.utf8"
+</code></pre>
+
+<p>关于环境变量的多种设置方法，我准备在下一篇总结一下。</p>
+
+<p>11）Daemon 设置</p>
+
+<p>我原来<code>/etc/rc.conf</code>中<code>DAEMONS</code>数组设置如下：</p>
+
+<pre><code>DAEMONS=(!hwclock syslog-ng dbus netfs @alsa @crond @networkmanager @sshd @sensors @libvirtd @dropboxd)
+</code></pre>
+
+<p>其中<code>hwclock</code>不使用；<code>syslog-ng</code>被<code>systemd</code>自带的<code>journald</code>取代，不用设置；<code>dbus</code>默认enable；<code>netfs</code>忘了我用来干嘛的了，暂不管；<code>alsa</code>好像也不需要特别设置；<code>crond</code>我一直没用，不设置；<code>networkmanager</code>已经设置；<code>sshd</code>家里电脑也一直用不上；最后三个<code>sensors</code>,<code>libvirtd</code>,<code>dropboxd</code>没发现有现成的service文件，需要自己创建，暂时搁置。</p>
+
+<p>到目前位置，整个<code>systemd</code>就配置忘了，重启之后就可以使用了。
+最后附一张我使用<code>systemd</code>后系统启动时序图，可以适用如下命令生产：</p>
+
+<pre><code>systemd-analyze plog &gt; boot.svg
+</code></pre>
+
+<p><img src="http://ensonmj.github.com/images/boot.svg" title="Boot with systemd in arch" alt="Boot with systemd in arch" /></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[转]Linux inode 介绍]]></title>
@@ -377,7 +533,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#x6f;&#58;&#101;&#110;&#115;&#x6f;&#x6e;&#109;&#x6a;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;">&#101;&#110;&#x73;&#x6f;&#x6e;&#109;&#x6a;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#109;</a><br/>
+Author: ensonmj <a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#x6f;&#58;&#101;&#x6e;&#115;&#111;&#110;&#x6d;&#x6a;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#x6d;">&#x65;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#x40;&#x67;&#109;&#x61;&#105;&#108;&#46;&#99;&#x6f;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -394,13 +550,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#101;&#110;&#115;&#111;&#110;&#109;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#101;&#x6e;&#115;&#111;&#x6e;&#x6d;&#x6a;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#x3a;&#x65;&#x6e;&#115;&#111;&#110;&#109;&#x6a;&#x40;&#103;&#109;&#x61;&#105;&#x6c;&#x2e;&#99;&#111;&#x6d;">&#x65;&#110;&#x73;&#x6f;&#x6e;&#109;&#106;&#x40;&#103;&#x6d;&#x61;&#105;&#108;&#46;&#99;&#111;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#101;&#110;&#115;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#x73;&#x6f;&#x6e;&#x6d;&#x6a;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x65;&#110;&#115;&#111;&#110;&#x6d;&#106;&#x40;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#109;">&#x65;&#110;&#x73;&#111;&#110;&#x6d;&#x6a;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#x6d;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>

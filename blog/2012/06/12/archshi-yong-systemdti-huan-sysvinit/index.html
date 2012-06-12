@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Arch使用systemd替换sysVinit - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="忘了最早是怎么知道systemd的了，最近想起来折腾它还是因为无意中看到了Arch论坛上一篇帖子，帖子内容跨度了两年，对于技术贴来说，我第一次见到。要想把整个帖子内容都看完有点不现实，大体上整个帖子就是在讨论Arch中怎么用systemd替换现有的sysVinit。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32150918-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Arch使用systemd替换sysVinit</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-12T20:34:00+08:00" pubdate data-updated="true">Jun 12<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>忘了最早是怎么知道<code>systemd</code>的了，最近想起来折腾它还是因为无意中看到了Arch论坛上一篇<a href="https://bbs.archlinux.org/viewtopic.php?id=96316">帖子</a>，帖子内容跨度了两年，对于技术贴来说，我第一次见到。要想把整个帖子内容都看完有点不现实，大体上整个帖子就是在讨论Arch中怎么用<code>systemd</code>替换现有的<code>sysVinit</code>。</p>
+
+<p><code>systemd</code>是一个新的init系统，有关它的详细介绍参见Lennart的<a href="http://0pointer.de/blog/projects/systemd.html">blog</a>，文章很长，推荐技术宅们详细阅读下，看完你会觉得受益匪浅，甚至也许你就会像我一样迫不及待的想要尝试一下了。</p>
+
+<p>其实整个切换过程并不复杂，按照<a href="https://wiki.archlinux.org/index.php/Systemd">Arch wiki</a>上一步一步来就行了，我这里只是记录下我自己的整个操作过程，算是Wiki的中文简化版吧。</p>
+
+<h3>安装<code>systemd</code></h3>
+
+<pre><code>$sudo pacman -S systemd
+</code></pre>
+
+<p>Arch当前安装完会有一些提示，可以暂时不用管，后面会用到。</p>
+
+<pre><code>ln -s '/usr/lib/systemd/system/getty@.service' '/etc/systemd/system/getty.target.wants/getty@tty1.service'
+:: Append 'init=/bin/systemd' to your kernel command line in your
+   bootloader to replace sysvinit with systemd
+</code></pre>
+
+<!--more-->
+
+
+<h3>创建新的启动项以使用<code>systemd</code>管理整个系统</h3>
+
+<p>说一下我当前系统的环境，我现在使用的是Arch x86_64</p>
+
+<pre><code>$uname -a
+Linux ENSONMJ-PC **3.3.7-1-ARCH** #1 SMP PREEMPT Tue May 22 00:26:26 CEST 2012 x86_64 GNU/Linux
+</code></pre>
+
+<p>bootloader使用的是Grub，不是Grub2，根分区在第一块硬盘的第三个分区上，所以启动项的配置是修改<code>/boot/grub/menu.lst</code>文件，添加如下启动条目（参数因人而异，不能照抄）：</p>
+
+<pre><code># (0) Arch Linux
+title  Arch Linux [systemd]
+root   (hd0,**2**)
+kernel /boot/vmlinuz-linux root=/dev/sda**3** vga=795 ro **init=/bin/systemd**
+initrd /boot/initramfs-linux.img
+</code></pre>
+
+<h3>配置系统以使用native的systemd</h3>
+
+<p>这部分就是按照Wiki的说明按部就班的来：</p>
+
+<p>1）hostname 设置</p>
+
+<p>编辑<code>/etc/hostname</code>文件，里面写上你的hostname</p>
+
+<pre><code>YOUR_HOSTNAME
+</code></pre>
+
+<p>2）console and keymap 设置</p>
+
+<p>编辑<code>/etc/vconsole.conf</code>文件, 内容如下：</p>
+
+<pre><code>KEYMAP="us"
+FONT=lat9w-16 #rc.conf中留空了
+FONT_MAP=8859-1_to_uni #rc.conf中留空了
+</code></pre>
+
+<p>其实<code>FONT</code>和<code>FONT_MAP</code>在原来<code>/etc/rc.conf</code>中我都留空了，没有设置值，这里只是照抄了wiki，效果不好可以后续再调整；关KEYMAP的介绍可以参见<a href="https://wiki.archlinux.org/index.php/KEYMAP">Arch wiki</a>。</p>
+
+<p>3）locale 设置</p>
+
+<p>编辑<code>/etc/locale.conf</code>文件，内容如下：</p>
+
+<pre><code>LANG="en_US.UTF-8"
+LC_COLLATE="C"
+</code></pre>
+
+<p>4) timezone设置</p>
+
+<p>编辑<code>/etc/timezone</code>文件，内容如下：</p>
+
+<pre><code>Asia/Shanghai
+</code></pre>
+
+<p>注意：<code>systemd</code>不支持<code>localtime</code>，如果之前使用的是<code>localtime</code>（装双系统出于兼容windows的可能会这么设置），那么需要改为<code>utc</code>:</p>
+
+<pre><code>hwclock --systohc --utc
+</code></pre>
+
+<p>5) 配置内核模块</p>
+
+<p>如果需要在启动时加载内核模块，需要在<code>/etc/modules-load.d/</code>下创建相应的文件，我只用了个<code>kvm-intel</code>模块，某次鼓捣<code>kvm</code>的遗留产物，于是创建<code>/etc/modules-load.d/kvm.conf</code>文件，内容如下：</p>
+
+<pre><code>kvm-intel
+</code></pre>
+
+<p>其实文件名是可以任意取的，只要内容正确就行。同时还可以配置内核模块黑名单，有兴趣的自己研究，<a href="https://wiki.archlinux.org/index.php/Systemd#Configure_kernel_modules_blacklist">参考链接</a>，我暂不需要这功能。</p>
+
+<p>6）临时文件</p>
+
+<p>可以用来定义哪些文件该何时清理，这个未配置，有空再研究。</p>
+
+<p>7）日志</p>
+
+<p>从Version 38开始，<code>systemd</code>开始有了自带的日志系统，默认日志写入<code>/run/systemd/journal/</code>目录下,重启后会消失；如果需要非易失的日志,可以创建<code>/var/log/journal/</code>目录。另外也可以考虑将<code>systemd</code>的日志重定向到<code>syslog</code>中，不感兴趣。</p>
+
+<p>8）网络</p>
+
+<p>我适用NetWorkManager配置网络，启用<code>NetworkManager.service</code>就行</p>
+
+<pre><code>systemctl enable NetworkManager.service
+</code></pre>
+
+<p>9) 启用图形界面(默认）</p>
+
+<p><code>systemd</code>安装后，默认是适用图形界面的，此步可以省略了。</p>
+
+<pre><code>$ls -l /usr/lib/systemd/system/default.target 
+lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&gt; graphical.target
+</code></pre>
+
+<p>10) 使用DE(Display Manager),具体对于我来说就是<code>gdm</code></p>
+
+<p>目前需要安装AUR中的<code>systemd-arch-units</code>包</p>
+
+<pre><code>yaourt -S systemd-arch-units
+</code></pre>
+
+<p>然后启用<code>gdm.service</code>:</p>
+
+<pre><code>systemctl enable gdm.service
+</code></pre>
+
+<p>如果在<code>/etc/locale.conf</code>文件中设置了locale，则为了DE使用同样的locale，需要在<code>/etc/environment</code>文件中
+设置相应的系统级环境变量，其文件内容如下：</p>
+
+<pre><code>LANG="en_US.utf8"
+</code></pre>
+
+<p>关于环境变量的多种设置方法，我准备在下一篇总结一下。</p>
+
+<p>11）Daemon 设置</p>
+
+<p>我原来<code>/etc/rc.conf</code>中<code>DAEMONS</code>数组设置如下：</p>
+
+<pre><code>DAEMONS=(!hwclock syslog-ng dbus netfs @alsa @crond @networkmanager @sshd @sensors @libvirtd @dropboxd)
+</code></pre>
+
+<p>其中<code>hwclock</code>不使用；<code>syslog-ng</code>被<code>systemd</code>自带的<code>journald</code>取代，不用设置；<code>dbus</code>默认enable；<code>netfs</code>忘了我用来干嘛的了，暂不管；<code>alsa</code>好像也不需要特别设置；<code>crond</code>我一直没用，不设置；<code>networkmanager</code>已经设置；<code>sshd</code>家里电脑也一直用不上；最后三个<code>sensors</code>,<code>libvirtd</code>,<code>dropboxd</code>没发现有现成的service文件，需要自己创建，暂时搁置。</p>
+
+<p>到目前位置，整个<code>systemd</code>就配置忘了，重启之后就可以使用了。
+最后附一张我使用<code>systemd</code>后系统启动时序图，可以适用如下命令生产：</p>
+
+<pre><code>systemd-analyze plog &gt; boot.svg
+</code></pre>
+
+<p><img src="/images/boot.svg" title="Boot with systemd in arch" alt="Boot with systemd in arch" /></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-12T20:34:00+08:00" pubdate data-updated="true">Jun 12<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>Linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/" title="Previous Post: [转]Linux inode 介绍">&laquo; [转]Linux inode 介绍</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+ <h1>Categories</h1>
+ <ul id="categories">
+ <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
+<li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (5)</a></li>
+<li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
+<li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
+
+ </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/">Arch使用systemd替换sysVinit</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/">git-svn 标准模式克隆的问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/25/c-number-fei-uixian-cheng-tong-zhi-guan-bi-uishi-de-yi-chang-chu-li/">C# 非UI线程通知关闭UI时的异常处理</a>
+      </li>
+    
+  </ul>
+</section>
+<section id="comment_sidebar">
+<h1>近期评论</h1>
+
+<script type="text/javascript" src="http://techtoy.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=20"></script><a href="http://disqus.com/">Powered by Disqus</a>
+
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'techtoy';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
