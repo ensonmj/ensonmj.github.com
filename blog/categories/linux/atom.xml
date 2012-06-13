@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | TechToy]]></title>
   <link href="http://ensonmj.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-06-12T23:50:00+08:00</updated>
+  <updated>2012-06-13T18:51:06+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -159,8 +159,16 @@ lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&
 
 <p>其中<code>hwclock</code>不使用；<code>syslog-ng</code>被<code>systemd</code>自带的<code>journald</code>取代，不用设置；<code>dbus</code>默认enable；<code>netfs</code>忘了我用来干嘛的了，暂不管；<code>alsa</code>好像也不需要特别设置；<code>crond</code>我一直没用，不设置；<code>networkmanager</code>已经设置；<code>sshd</code>家里电脑也一直用不上；最后三个<code>sensors</code>,<code>libvirtd</code>,<code>dropboxd</code>没发现有现成的service文件，需要自己创建，暂时搁置。</p>
 
-<p>到目前位置，整个<code>systemd</code>就配置忘了，重启之后就可以使用了。
-最后附一张我使用<code>systemd</code>后系统启动时序图，可以适用如下命令生产：</p>
+<p>12）支持休眠</p>
+
+<p>到目前位置，整个<code>systemd</code>就配置完了，重启之后就可以使用了。但是如果就这样结束的话，<code>gnome</code>中的<code>suspend</code>就无法使用，要想支持休眠还需要安装<code>systemd-sysvcompat</code>包。</p>
+
+<pre><code>pacman -S systemd-sysvcompat
+</code></pre>
+
+<p>安装<code>systemd-sysvcompat</code>时会提示冲突，需要同时卸载<code>sysvint</code>和<code>initscripts</code>。</p>
+
+<p>最后附一张我使用<code>systemd</code>后系统启动时序图，可以看到整个启动过程只用了9s，神速啊。时序图可以使用如下命令生成：</p>
 
 <pre><code>systemd-analyze plog &gt; boot.svg
 </code></pre>
