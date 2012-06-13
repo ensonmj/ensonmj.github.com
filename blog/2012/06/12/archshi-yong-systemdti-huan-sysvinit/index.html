@@ -254,6 +254,8 @@ lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&
 
 <p>安装<code>systemd-sysvcompat</code>时会提示冲突，需要同时卸载<code>sysvint</code>和<code>initscripts</code>。</p>
 
+<p><strong>另外，在安装过<code>systemd-sysvcompat</code>之后，就完全用<code>systemd</code>取代了<code>sysVinit</code>了，此时，grub中的内核启动参数<code>init=/bin/systemd</code>也可以去掉了。</strong></p>
+
 <p>最后附一张我使用<code>systemd</code>后系统启动时序图，可以看到整个启动过程只用了9s，神速啊。时序图可以使用如下命令生成：</p>
 
 <pre><code>systemd-analyze plog &gt; boot.svg

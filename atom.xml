@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-06-13T18:51:06+08:00</updated>
+  <updated>2012-06-13T21:58:38+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -167,6 +167,8 @@ lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&
 </code></pre>
 
 <p>安装<code>systemd-sysvcompat</code>时会提示冲突，需要同时卸载<code>sysvint</code>和<code>initscripts</code>。</p>
+
+<p><strong>另外，在安装过<code>systemd-sysvcompat</code>之后，就完全用<code>systemd</code>取代了<code>sysVinit</code>了，此时，grub中的内核启动参数<code>init=/bin/systemd</code>也可以去掉了。</strong></p>
 
 <p>最后附一张我使用<code>systemd</code>后系统启动时序图，可以看到整个启动过程只用了9s，神速啊。时序图可以使用如下命令生成：</p>
 
@@ -541,7 +543,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#101;&#110;&#115;&#111;&#110;&#x6d;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#109;">&#101;&#x6e;&#x73;&#x6f;&#110;&#x6d;&#106;&#64;&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#101;&#110;&#x73;&#x6f;&#110;&#x6d;&#106;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#115;&#111;&#110;&#109;&#106;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -558,13 +560,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#58;&#x65;&#x6e;&#x73;&#x6f;&#x6e;&#109;&#x6a;&#64;&#103;&#x6d;&#x61;&#105;&#108;&#46;&#99;&#111;&#x6d;">&#x65;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#116;&#x6f;&#58;&#x65;&#110;&#x73;&#111;&#x6e;&#109;&#x6a;&#64;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#101;&#x6e;&#115;&#x6f;&#110;&#109;&#106;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#99;&#111;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#64;&#103;&#109;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#109;">&#x65;&#x6e;&#x73;&#x6f;&#110;&#109;&#106;&#x40;&#103;&#109;&#x61;&#105;&#108;&#46;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#x65;&#110;&#115;&#111;&#x6e;&#109;&#x6a;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#x65;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#x6d;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
