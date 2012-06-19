@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-06-13T21:58:38+08:00</updated>
+  <updated>2012-06-19T21:03:03+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,45 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Linux 环境变量的多种设置途径]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing/"/>
+    <updated>2012-06-19T20:15:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing</id>
+    <content type="html"><![CDATA[<p>上一篇提到有空写写Linux设置环境变量的方法，没想到一眨眼就是一周，怎一个懒字了得。</p>
+
+<p>其实这篇文章主要翻译自一篇<a href="https://numberformat.wordpress.com/2010/01/24/setting-environment-variables-in-ubuntu/">英文blog</a>，有喜欢阅读英文资料的可以前去一观。</p>
+
+<h3>会话级环境变量</h3>
+
+<p>会话级的环境变量只影响特定的登录用户，用户主目录下有几个隐藏文件可以用于进行此设置。</p>
+
+<ul>
+<li><p><code>~/.profile</code> - 这个脚本在启动DM（Display Manager）时被自动加载；如果你使用控制台方式登录，它也会被加载，其实确切的说，只要是使用<strong> login shell </strong>，此文件就会被加载。</p></li>
+<li><p><code>~/.bash_profile</code>或者<code>~/.bash_login</code> - 这两个文件中只要有一个存在，启动login shell的时候就会加载这两个文件之一，而不会加载<code>~/.profile</code>，如果两个都存在，bash优先加载<code>~/.bash_profile</code>；这两个文件对图形环境不会有影响，DM启动时不会加载。<br/>
+其实一般情况下<code>～/.bash_profile</code>的内容只有一行，就是加载下面要讲到的<code>~/.bashrc</code>文件。</p>
+
+<p>  $cat ~/.bash_profile<br/>
+  . $HOME/.bashrc</p></li>
+<li><p><code>~/.bashrc</code> - 这个文件一般使用比较广泛，也比较方便。每次执行bash时都会加载一次此文件（非login shell），因此有点小小的冗余——变量会被多次设置，不过这不是什么大问题；这个文件在启动图形界面时也会被加载。</p></li>
+</ul>
+
+
+<p>我个人的设置是<code>~/.bashrc</code>搞定图形界面和非login shell，<code>~/.bash_profile</code>搞定login shell。</p>
+
+<h3>系统级环境变量</h3>
+
+<p>系统级的环境变量则会影响到所有使用这台机器的用户，相关配置文件都在<code>/etc</code>目录下。</p>
+
+<ul>
+<li><p><code>/etc/profile</code> - 这个文件在每次启动login shell或者DM时执行，系统默认其实只做了很少一部分设置，其他设置还是加载<code>/etc/bash.bashrc</code>来完成的。</p></li>
+<li><p><code>/etc/bash.bashrc</code> - 这是<code>~/.bashrc</code>文件的系统级版本，作用基本类似。</p></li>
+<li><p><code>/etc/environment</code> - 这个有别于上面提到的所有文件，它不是一个脚本文件，仅仅是一个包含“键值对”的配置文件，这个文件一般用来设置系统级的<code>locale</code>和<code>path</code>。上一篇中使用<code>systemd</code>替换<code>sysVinit</code>的过程中，就用了此文件来设置系统级的locale。</p></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Arch使用systemd替换sysVinit]]></title>
@@ -543,7 +582,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#101;&#110;&#x73;&#x6f;&#110;&#x6d;&#106;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#115;&#111;&#110;&#109;&#106;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#101;&#x6e;&#115;&#x6f;&#x6e;&#109;&#106;&#x40;&#103;&#109;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#x6d;">&#x65;&#x6e;&#115;&#111;&#x6e;&#109;&#106;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -560,13 +599,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#116;&#x6f;&#58;&#x65;&#110;&#x73;&#111;&#x6e;&#109;&#x6a;&#64;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#101;&#x6e;&#115;&#x6f;&#110;&#109;&#106;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#99;&#111;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#x61;&#105;&#x6c;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#x6f;&#x6e;&#x6d;&#106;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#99;&#111;&#x6d;">&#101;&#110;&#115;&#111;&#110;&#109;&#106;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#x2e;&#x63;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#x65;&#110;&#115;&#111;&#x6e;&#109;&#x6a;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#x65;&#110;&#x73;&#x6f;&#110;&#x6d;&#x6a;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#x6d;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#58;&#101;&#110;&#x73;&#111;&#110;&#x6d;&#x6a;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#109;">&#x65;&#x6e;&#x73;&#111;&#110;&#x6d;&#x6a;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
