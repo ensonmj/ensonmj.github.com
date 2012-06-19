@@ -13,7 +13,7 @@ categories: [Linux]
 会话级的环境变量只影响特定的登录用户，用户主目录下有几个隐藏文件可以用于进行此设置。
 
 * `~/.profile` - 这个脚本在启动DM（Display Manager）时被自动加载；如果你使用控制台方式登录，它也会被加载，其实确切的说，只要是使用** login shell **，此文件就会被加载。
-
+<!--more-->
 * `~/.bash_profile`或者`~/.bash_login` - 这两个文件中只要有一个存在，启动login shell的时候就会加载这两个文件之一，而不会加载`~/.profile`，如果两个都存在，bash优先加载`~/.bash_profile`；这两个文件对图形环境不会有影响，DM启动时不会加载。  
 其实一般情况下`～/.bash_profile`的内容只有一行，就是加载下面要讲到的`~/.bashrc`文件。
     
