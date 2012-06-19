@@ -113,7 +113,14 @@
 <p>会话级的环境变量只影响特定的登录用户，用户主目录下有几个隐藏文件可以用于进行此设置。</p>
 
 <ul>
-<li><p><code>~/.profile</code> - 这个脚本在启动DM（Display Manager）时被自动加载；如果你使用控制台方式登录，它也会被加载，其实确切的说，只要是使用<strong> login shell </strong>，此文件就会被加载。</p></li>
+<li><code>~/.profile</code> - 这个脚本在启动DM（Display Manager）时被自动加载；如果你使用控制台方式登录，它也会被加载，其实确切的说，只要是使用<strong> login shell </strong>，此文件就会被加载。</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
 <li><p><code>~/.bash_profile</code>或者<code>~/.bash_login</code> - 这两个文件中只要有一个存在，启动login shell的时候就会加载这两个文件之一，而不会加载<code>~/.profile</code>，如果两个都存在，bash优先加载<code>~/.bash_profile</code>；这两个文件对图形环境不会有影响，DM启动时不会加载。<br/>
 其实一般情况下<code>～/.bash_profile</code>的内容只有一行，就是加载下面要讲到的<code>~/.bashrc</code>文件。</p>
 
@@ -183,6 +190,8 @@
         <a class="basic-alignment left" href="/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/" title="Previous Post: Arch使用systemd替换sysVinit">&laquo; Arch使用systemd替换sysVinit</a>
       
       
+        <a class="basic-alignment right" href="/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/" title="Next Post: [转]GDB使用介绍">[转]GDB使用介绍 &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -202,7 +211,7 @@
  <ul id="categories">
  <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
 <li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
-<li class='category'><a href='/blog/categories/linux/'>Linux (6)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (7)</a></li>
 <li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
 <li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
 
@@ -211,6 +220,10 @@
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/">[转]GDB使用介绍</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing/">Linux 环境变量的多种设置途径</a>
@@ -226,10 +239,6 @@
     
       <li class="post">
         <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/">git-svn 标准模式克隆的问题</a>
       </li>
     
   </ul>

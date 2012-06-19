@@ -9,7 +9,13 @@
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="一个长期维护的项目不断轻松稳定的升级也是一件很有挑战的事。很多项目因为没有及时升级导致升级越来越困难，维护成本越来越高。自从Bundler的出现，Ruby项目的依赖管理变得方便和稳定。 但是从最近的一个帖子发现，在处理gem升级的问题上还存在一些分歧，升级方式主要有三种: optimistic[ &hellip;">
+  <meta name="description" content="第一版 //第一版，没有释放基础流
+WebRequest wr = WebRequest.Create(URL);
+try
+{ WebResponse res = wr.GetResponse(); /* * do something */
+}
+catch(WebException ex)
+{ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +82,69 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/16/webrequest_getresponse_block/">彻底解决WebRequest的GetResponse阻塞问题</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-16T20:00:00+08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/02/16/webrequest_getresponse_block/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>第一版</p>
+
+<div><script src='https://gist.github.com/1844714.js?file=WebResponse_block_first.cs'></script>
+<noscript><pre><code>//第一版，没有释放基础流
+WebRequest wr = WebRequest.Create(URL);
+try
+{
+  WebResponse res = wr.GetResponse();
+  /*
+   * do something
+  */
+}
+catch(WebException ex)
+{
+  throw ex;
+}
+
+</code></pre></noscript></div>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/16/webrequest_getresponse_block/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -332,7 +401,7 @@ super pessimistic[超级悲观]
  <ul id="categories">
  <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
 <li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
-<li class='category'><a href='/blog/categories/linux/'>Linux (6)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (7)</a></li>
 <li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
 <li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
 
@@ -341,6 +410,10 @@ super pessimistic[超级悲观]
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/">[转]GDB使用介绍</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing/">Linux 环境变量的多种设置途径</a>
@@ -356,10 +429,6 @@ super pessimistic[超级悲观]
     
       <li class="post">
         <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/05/29/git-svn-biao-zhun-mo-shi-ke-long-de-wen-ti/">git-svn 标准模式克隆的问题</a>
       </li>
     
   </ul>

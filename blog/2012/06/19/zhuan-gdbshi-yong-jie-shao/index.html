@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[转]GDB使用介绍 - TechToy</title>
+  <meta name="author" content="ensonmj">
+
+  
+  <meta name="description" content="本文转自于CSDN, 仅作排版处理。 GDB介绍 在Linux下最强大的Debug工具就是GDB了，许多IDE都集成了GDB进行调试。使用源代码级调试能够更直接的进行调试，效率明显高于输出Log信息。但目前无论是Mac下的XCode，还是Linux下的其它集成工具，对于调试库函数都是相当困难的， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TechToy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32150918-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">TechToy</a></h1>
+  
+    <h2>follow your principle</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ensonmj.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[转]GDB使用介绍</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-19T21:06:00+08:00" pubdate data-updated="true">Jun 19<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>本文转自于<a href="http://blog.csdn.net/horkychen/article/details/7676024">CSDN</a>, 仅作排版处理。</p>
+
+<h3>GDB介绍</h3>
+
+<p>在Linux下最强大的Debug工具就是GDB了，许多IDE都集成了GDB进行调试。使用源代码级调试能够更直接的进行调试，效率明显高于输出Log信息。但目前无论是Mac下的XCode，还是Linux下的其它集成工具，对于调试库函数都是相当困难的，如果直接使用GDB这些问题就迎刃而解。我们首先来探讨一下GDB的基础知识。</p>
+
+<h3>GDB调试流程</h3>
+
+<p>GDB调试依赖于编译器输出的调试信息,所以进行调试前必须确定GCC输出了调试信息。</p>
+
+<!--more-->
+
+
+<h4>生成符号文件</h4>
+
+<p>使用GCC编译时需要生成相应的调试信息，编译时可以使用-g选项，详细内容参GCC Manual, Section 3.9</p>
+
+<blockquote><p>-g  表示将Symbol Table以系统原生格式直接生成到可执行文件中，-g选项最好不要同-O一起使用，因为代码经过优化后有时会同源代码差异很大，可能找不到指定的变量等等。</p>
+
+<p>-ggdb  表示将专门为GDB调试使用生成调试信息，它会包括很多GDB的扩展信息。</p></blockquote>
+
+<p>其它的Symbol Table的格式还有COFF，DWARF，Stabs等。Mac OS默认为DWARF，DWARF也是基于COFF（Common Object File Format）实现。</p>
+
+<p>输出的调试信息的多少由三个等级:</p>
+
+<blockquote><p>-g[level]  默认为2</p>
+
+<p>  0  表示不生成任何调试信息</p>
+
+<p>  1  表示生成最少的调试信息，不提供局部变量及源代码行列等信息。</p>
+
+<p>  2  标准模式</p>
+
+<p>  3  较2而言，包含了宏定义等额外信息</p></blockquote>
+
+<p>其它同调试相关的编译选项还有:</p>
+
+<blockquote><p>-p 生成额外的代码用于输出profile信息，用于另一个工具程序使用:prof</p>
+
+<p>&#8211;coverage 用于统于代码的覆盖率。</p>
+
+<p>&#8211;ftest-coverage 类似上面的&#8211;coverage</p>
+
+<p>-d*  用于Dump一些有用的信息，详细内容参GDB Manual.</p></blockquote>
+
+<h4>启动GDB进行调试</h4>
+
+<p>下面的过程，我都以下面的工程进行解释:</p>
+
+<p>目标程序: text2bin</p>
+
+<p>源代码: text2bin.c</p>
+
+<p>功能: 将文本文件转成二进制文件</p>
+
+<p>使用方法: <code>./text2bin txt_file_name  [offset]</code>，txt_file_name为源文本文件名，offset指定忽略左侧多少字节。</p>
+
+<p>A.调试应用程序</p>
+
+<p>(1)启动</p>
+
+<p>直接在命令行下输入<code>gdb ./text2bin</code>或者运行gdb后输入<code>file ./text2bin</code>都可以加载指定的应用程序。</p>
+
+<p>GDB会显示加载Symbols的过程，注意如果没有出现加载text2bin的调试信息的过程，就是表明无法获取调试信息!</p>
+
+<blockquote><p>Reading symbols for shared libraries &#8230; done</p>
+
+<p>Reading symbols from /Horky/Project/WINBASE/WINBASE/TextToRaw/text2bin&#8230;</p>
+
+<p>warning: UUID mismatch detected between:</p>
+
+<pre><code>/Horky/Project/WINBASE/WINBASE/TextToRaw/text2bin 
+</code></pre></blockquote>
+
+<p>(2)设置断点</p>
+
+<p>除了断点外还有Watchpoints(观测点)及Catchpoints (异常捕捉点)</p>
+
+<p>输入<code>b</code>或<code>break</code>加上断点位置或断点函数名，如</p>
+
+<pre><code>b main  #在main函数入口设置断点
+b text2bin.c:50  #在源代码第50行设置断点 
+</code></pre>
+
+<p>如果需要查看断点信息可以使用指令:</p>
+
+<pre><code>info breakpoints 
+</code></pre>
+
+<p>清除所有断点使用指令:</p>
+
+<pre><code>clear
+</code></pre>
+
+<p> 清除特定的断点使用指令:</p>
+
+<pre><code> clear text2bin.c:50
+ clear main 
+</code></pre>
+
+<p>在调试过程可以使用<code>disable</code>及<code>enable</code>开关某个特定的断点，如<code>enable 2</code>及<code>disable 2</code>开关第2个断点，在使用<code>info b</code>查看断点时，注意其中<code>Enb</code>栏位的变化。</p>
+
+<p>对于观测点(Watchpoints)，是指在某个条件下触发的断点，如text2bin中77行:</p>
+
+<blockquote><p>Buffer2[nCount++] = ConvertTextToInt(sData);</p></blockquote>
+
+<p>我们要查看当nCount为10时的运行状况,我们可以通过下面的步骤完成:</p>
+
+<p>a. 执行<code>b 77</code>,返回这个断点号是3</p>
+
+<p>b. 执行<code>condition 3 nCount=10</code></p>
+
+<p>过程如下:</p>
+
+<blockquote><p>(gdb) b 77</p>
+
+<p>Breakpoint 3 at 0x1c73: file text2bin.c, line 77.</p>
+
+<p>(gdb) condition 3 nCount=10</p>
+
+<p>(gdb) info breakpoints</p>
+
+<p>Num Type           Disp Enb Address    What</p>
+
+<p>1   breakpoint     keep y   0x00001e1e in ConvertTextToInt at text2bin.c:124</p>
+
+<pre><code>breakpoint already hit 1 time
+</code></pre>
+
+<p>2   breakpoint     keep y   0x00001e25 in ConvertTextToInt at text2bin.c:125</p>
+
+<p>3   breakpoint     keep y   0x00001c73 in main at text2bin.c:77</p>
+
+<pre><code>stop only if nCount = 10 
+</code></pre></blockquote>
+
+<p>这样就可以控制当nCount为10时在77行处中断。</p>
+
+<p>如果在调试时，需在下面若干行代码后追加一个断点，在指定位置可以使用偏移量来指定断点，如<code>b +5</code>及<code>b -5</code>，即表示在当前行的后五行及前五行位置设置断点。</p>
+
+<p>(3)控制调试过程</p>
+
+<p>在开始时需要告诉GDB目标程序是哪一个，可以用<code>gdb ./text2bin</code>，也可以在启动gdb后使用指令来指定:</p>
+
+<pre><code>file ./text2bin
+</code></pre>
+
+<p>运行则使用<code>r[un]</code>指令，可以同时带上参数，如</p>
+
+<pre><code>r ./expert.txt 7 
+</code></pre>
+
+<p>在调试过程中需要有一系列操作控制调试的过程: c[ontinue]/fg(fg是foreground的缩写)</p>
+
+<p>从断点状态恢复程序的执行。</p>
+
+<pre><code>s[tep] [count] #单步执行 (step in)
+
+n[ext] [count] #单步执行,跳过函数 (step out)
+
+u[ntil] [location] #执行到某个位置，当遇到循环时可以使用此指令方便地跳转到指定的位置。
+
+finish #执行到当前函数结束位置为止,同时显示函数返回值
+
+backtrace #查看当前位置的被调用路径 
+</code></pre>
+
+<p>(4)监测变量及内存</p>
+
+<p>简单地显示变量的值可以使用<code>print</code>指令直接输出:</p>
+
+<pre><code>p[rint] [expression]
+</code></pre>
+
+<p>如输出main函数中的文件名变量<code>p argv[0]</code>，输出ConvertTextToInt函数中n的值<code>p n</code>或<code>p ConvertTextToInt::n</code></p>
+
+<p>查看内存内容时则使用<code>x</code>指令:</p>
+
+<pre><code>x /nfu addr  #以指定格式显示内存内容
+
+x addr  #显示指定地址处理内存内容
+
+x #显示当前数据段内容 
+</code></pre>
+
+<p>如以字串形显示某内存内容的指令为:</p>
+
+<pre><code>x /sb 0xbffff80e
+</code></pre>
+
+<p>以数据形式显示某内存中5个字节的内容的指令为:</p>
+
+<pre><code>x /5db 0xbffff80e 
+</code></pre>
+
+<p>设定local variable watch，用来在每条执行后显示某些变量的值，可以使用<code>display</code>指令来指定，如:</p>
+
+<pre><code>display S
+display /sb 0xbffff707 
+</code></pre>
+
+<p>去除时使用<code>undisplay #</code>，#为display列表中的序号</p>
+
+<p>display后面所带的参数同<code>x</code>指令:</p>
+
+<blockquote><p>n 表示repeat count</p>
+
+<p>f 表示格式,分为:</p>
+
+<p>  x  十六制数据</p>
+
+<p>  d  带符号之整型数据</p>
+
+<p>  u  无符号整型数据</p>
+
+<p>  o  八进制整型数据</p>
+
+<p>  t  二进制数据</p>
+
+<p>  a 以地址格式显示,包括十六进制及偏移量</p>
+
+<p>  c 以字符形式输出</p>
+
+<p>  f  小数位输出</p>
+
+<p>  s  以字串形式输出</p>
+
+<p>u表示大小单位:</p>
+
+<p>  b  Bytes</p>
+
+<p>  h  Halfwords</p>
+
+<p>  w  Words</p>
+
+<p>  g  Giant words (eight bytes)</p></blockquote>
+
+<p>(5)查看源代码</p>
+
+<p>使用<code>l[ist]</code>指令就可查看源代码了，如:</p>
+
+<pre><code>l 150 #查看当前代码的第150行
+
+l text2bin.c:150  #查看text2bin.c的150行
+
+l main  #查看main函数内容
+</code></pre>
+
+<p>查看时如果需要翻页直接回车，默认GDB一次显示10行，我们也可以通过<code>set linesize [count]</code>进行调整。</p>
+
+<p>B.如何调试动态库或静态库</p>
+
+<p>当调试库函数时，需要透过主程序调用的形式来挂载，所以不能直接使用GDB对目标库进行调试，而是需要<code>attach</code>指定的父进程，然后再进行测试。 这里有两种情况:</p>
+
+<p>(1)主程序启动时自动加载库，此时使用GDB挂载时也会自动加载相应的调试信息。</p>
+
+<p>(2)主程序动态加载库，对于这种情况则需要另外使用<code>symbol filename</code>来加载特定的调试信息。</p>
+
+<p>提醒:当进行多线程调试时，一定要确保能找出真正的主线程。</p>
+
+<p>断开主线程时，使用<code>detach</code>指令来完成。</p>
+
+<p>C.如何调试多线程的程序</p>
+
+<p>我们在写程序时常常会有多线程的运用, 比如有些程序中读取数据及数据处理，就是通过两个线程来完成的。对多线程进行调试最大的难点在于线程的同步问题。</p>
+
+<p>GDB提供了一套指令针对多线程:</p>
+
+<pre><code>info threads #查看当前有多少线程
+
+thread n #切换到指定线程
+
+set print thread-events on/off #设定是否打印线程状态
+</code></pre>
+
+<p>当设置中断时，也可以专为某个线程设置，如</p>
+
+<pre><code>b[reak] [location] thread n
+</code></pre>
+
+<p>即表示为n线程在location处设置断点，这样就可以进行线程别的调试。</p>
+
+<h3>技巧</h3>
+
+<p>(1)在GDB中如果需要调用外部程序可以使用<code>shell [command]</code>来完成。</p>
+
+<p>(2)当源代码目录被移动了，或者在另一台PC上调试，GDB不能通过Debug信息找到源代码时，可以使用<code>dir[ectory]</code>来指定搜索的目录。</p>
+
+<h3>GDB的前端程序(GDB frontend)</h3>
+
+<p>使用命令行是显得不方便了，所以我们可以选择一些GDB前端程序:</p>
+
+<blockquote><p> DDD   [GNU] (<a href="http://www.gnu.org/software/ddd">http://www.gnu.org/software/ddd</a>  目前功能最为强大的GDB前端程序)</p>
+
+<p> Nemiver  [GNOME]  (<a href="http://home.gna.org/nemiver/">http://home.gna.org/nemiver/</a>)</p>
+
+<p> Kdbg   [KDE] (&lt;www.kdbg.org>)</p>
+
+<p> Insight  [Wirte in Tcl/Tk] (<a href="http://sourceware.org/insight">http://sourceware.org/insight</a>)</p>
+
+<p> Emacs (不用介绍了!)</p></blockquote>
+
+<p>一般的IDE也带有GDB frontend程序，如XCode，KDevelop，Anjuta，Eclipse。</p>
+
+<p>GDB Frontend都是通过伪终端(pseudo-terminal)的方式来实现，有兴趣可以了解一下。</p>
+
+<h3>扩展GDB的功能</h3>
+
+<p>已经有人在通GDB进行代码覆盖率测试，事实上我们也可以通过类似GDB的方式读取Debug信息中的符号表来进行语法检查。有关Debug信息的存放，可以使用<code>objdump -x</code>或<code>readelf -a</code>来查看其中的不同，这有助更好的理解程序的结构。</p>
+
+<p>需求是多样的，GDB本身提供了两种方式来扩展GDB，一种为组合GDB的指令，类似宏的方式；另一种方式则是功能强大的python脚本。</p>
+
+<p>(1)在GDB环境下使用define指令来定义一个指令，如</p>
+
+<pre><code>define localv
+  info scope $arg0
+end
+</code></pre>
+
+<p>这样我们在使用时，想查看main函数中的所有的变量，就可以通过下面的指令完成:</p>
+
+<blockquote><p>(gdb) localv main</p>
+
+<p>Scope for main:</p>
+
+<p>Symbol argc is at the address (reg 5 + 8), length 4.</p>
+
+<p>Symbol argv is at the address (reg 5 + 12), length 4.</p>
+
+<p>Symbol fpSrc is at the address (reg 5 + -44), length 4.</p>
+
+<p>&#8230;&#8230;</p></blockquote>
+
+<p>如果这样的指令非常好用，每次调试时都定义一次不太现实。所以GDB允许将这些操作定义在一个文本文件中，然后在GDB中使用<code>source [command_file]</code>来执行，如<code>source /TestData/localv.cmd</code>。在执行过程中GDB不会显示每个指令的执行结果,如果需要显示就在<code>source</code>加<code>-v</code>来打开。</p>
+
+<p>除了组织指令集外，还有另一种有用的自定义指令: Hooks. GDB允许用户指定在特定的GDB指令执行前后执行一段自定义指令。比如，如果希望在设置断点前后都显示当前断点状况，就可以定义两个如下指令:</p>
+
+<blockquote><p>(gdb) define hook-break</p>
+
+<p>Type commands for definition of &#8220;hook-break&#8221;.</p>
+
+<p>End with a line saying just &#8220;end&#8221;.</p>
+
+<p>>info b</p>
+
+<p>>end</p>
+
+<p>(gdb) define hookpost-break</p>
+
+<p>Type commands for definition of &#8220;hookpost-break&#8221;.</p>
+
+<p>End with a line saying just &#8220;end&#8221;.</p>
+
+<p>>info b</p>
+
+<p>>end</p></blockquote>
+
+<p>然后执行<code>b[reak]</code>指令时就可以看到类似下面的输出:</p>
+
+<blockquote><p>(gdb) b GetFileSize</p>
+
+<p>Num Type           Disp Enb Address    What</p>
+
+<p>1   breakpoint     keep y   0x00001a68 in main at text2bin.c:25</p>
+
+<p>2   breakpoint     keep y   0x00001e1e in ConvertTextToInt at text2bin.c:124</p>
+
+<p>Breakpoint 3 at 0x1d86: file text2bin.c, line 108.</p>
+
+<p>Num Type           Disp Enb Address    What</p>
+
+<p>1   breakpoint     keep y   0x00001a68 in main at text2bin.c:25</p>
+
+<p>2   breakpoint     keep y   0x00001e1e in ConvertTextToInt at text2bin.c:124</p>
+
+<p>3   breakpoint     keep y   0x00001d86 in GetFileSize at text2bin.c:108</p></blockquote>
+
+<p>hook及hookpost即表示在某个指令的前后。后面的指令一定要使用GDB指令的全写，如上面就不能写成<code>define hook-b</code>或<code>define hookpost-b</code>。</p>
+
+<p>如果需要更为详细的资料，请参考GDB Manual,20. Extending GDB</p>
+
+<p>(2)在GDB环境可以直接调用python，如在GDB环境下执行<code>python print 23</code></p>
+
+<p>使用Python编写脚本同上面定义指令集是类似的，可以执行指令<code>python</code>, GDB就会要求输入python脚本，并以end为结束标志。</p>
+
+<p>GDB为编写Python提供了一个新的模块gdb， 在脚本中可以进行引用，其中包括了几个主要的指令:</p>
+
+<pre><code>execute command    #command是GDB CLI(Command Line Interface)指令字串.
+
+get_parameter parameter  #获取一项GDB的参数,诸如上面提到的linesize.
+
+write string  #输出一个字串到GDB输出窗口
+
+flush    #Flush当前GDB输出流 
+</code></pre>
+
+<p>只有当编译GDB时指定了<code>—with-python</code>时，GDB才会支持<code>python</code>指令.</p>
+
+<h3>参考文档:</h3>
+
+<p>(1) 使用GDB进行代码覆盖率测试</p>
+
+<pre><code>   &lt;http://www.ibm.com/developerworks/cn/linux/l-cn-gdb/&gt;
+</code></pre>
+
+<p>(2) 使用 GDB 调试 Linux 软件</p>
+
+<pre><code>   &lt;http://www.ibm.com/developerworks/cn/linux/sdk/gdb/&gt;
+</code></pre>
+
+<p>(3) 掌握 Linux 调试技术</p>
+
+<pre><code>   &lt;http://www.ibm.com/developerworks/cn/linux/sdk/l-debug/&gt;
+</code></pre>
+
+<p>(4) 用GDB调试程序</p>
+
+<pre><code>   &lt;http://docs.chinalinuxpub.com/doc/pro/gdb.html&gt;
+</code></pre>
+
+<p>(5) GDB调试精粹及使用实例</p>
+
+<pre><code>   &lt;http://fanqiang.chinaunix.net/program/other/2006-07-14/4834.shtml&gt;
+</code></pre>
+
+<p>(6) GDB的官方文档</p>
+
+<pre><code>   &lt;http://www.gnu.org/software/gdb/documentation/&gt;
+</code></pre>
+
+<p>(7) GDB指令参考 (可以打出来方便查询)</p>
+
+<pre><code>   &lt;http://users.ece.utexas.edu/~adnan/gdb-refcard.pdf&gt;
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">ensonmj</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-19T21:06:00+08:00" pubdate data-updated="true">Jun 19<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>Linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing/" title="Previous Post: Linux 环境变量的多种设置途径">&laquo; Linux 环境变量的多种设置途径</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+ <h1>Categories</h1>
+ <ul id="categories">
+ <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
+<li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (7)</a></li>
+<li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
+<li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
+
+ </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/">[转]GDB使用介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/19/linux-huan-jing-bian-liang-de-duo-chong-she-zhi-tu-jing/">Linux 环境变量的多种设置途径</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/">Arch使用systemd替换sysVinit</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/31/git-svngeng-xin-svndi-zhi/">git-svn更新svn地址</a>
+      </li>
+    
+  </ul>
+</section>
+<section id="comment_sidebar">
+<h1>近期评论</h1>
+
+<script type="text/javascript" src="http://techtoy.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=20"></script><a href="http://disqus.com/">Powered by Disqus</a>
+
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - ensonmj -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'techtoy';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
