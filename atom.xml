@@ -4,7 +4,7 @@
   <title><![CDATA[TechToy]]></title>
   <link href="http://ensonmj.github.com/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-06-19T22:00:46+08:00</updated>
+  <updated>2012-09-03T20:56:16+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,55 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[iPad利用DLNA客户端直接看电脑中的电影]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/"/>
+    <updated>2012-09-03T20:00:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying</id>
+    <content type="html"><![CDATA[<p>搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。</p>
+
+<p>电脑了存了一些电影，一直没时间看，这个周末准备用ipad体验一把。说实话ipad直接拷电影很不方便，而且我的乞丐版容量小，放不下几部，于是google怎么用ipad直接观看电脑上的电影，总结了下主要有如下几种方式：</p>
+
+<ul>
+<li><p>远程桌面方式首先放弃，ipad的屏幕看电脑桌面还是感觉有点小，控制电脑桌面不爽。</p></li>
+<li><p>ftp共享也许是个不错的方法，后来才知道ipad里面好多视频播放软件可以直接访问ftp里面的内容，反正成功搞定DLNA方式之前没有尝试此方式。</p></li>
+<li><p>uPnP/DLNA，不得不说这是个比较完美的方式，适合geek折腾，<sup>_^</sup></p></li>
+</ul>
+
+
+<p>现在看来其实搞定DLNA这种方式很容易，但当时可是废了好大一股劲儿，主要是搜索合适的软件比较费事。放了n次狗，各种比较之后选择了Linux平台下的miniDLNA，这个同时支持uPnP和DLNA，配置也比较简单，没有打过补丁的好像不支持转码，这个问题我还没有深究。Arch里面就有现成的二进制包</p>
+
+<pre><code>sudo pacman -S miniDLNA
+</code></pre>
+
+<p>这就安装上了，miniDLNA配置很简单，最主要的是配置共享文件夹</p>
+
+<pre><code>media_dir=V,/path/to/video
+</code></pre>
+
+<p>当然也可以配置个简单的显示名啥的，便于识别</p>
+
+<pre><code>friendly_name=MiniDLNA #这个名可以任意取
+</code></pre>
+
+<p>然后就可以启动DLNA服务了</p>
+
+<pre><code>minidlna -R
+</code></pre>
+
+<p>服务端配置完了，客户端就比较简单了，在iPad上找个支持uPnP/DLNA的客户端就行了，我知道的有几个</p>
+
+<ul>
+<li>xbmc - 这个很强大，当需要越狱，刚开始我服务端跟客户端都使用的这个，没搞定，一气之下两边都不用了。</li>
+<li>AirPlayer - 这个也很不错，支持的格式很丰富，可惜不是免费的</li>
+<li>Media Link Player Lite - 这个倒是免费的，也不用越狱，可惜支持的格式不多</li>
+</ul>
+
+
+<p>总之没一个完美的，怎么选自己决定吧。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[转]GDB使用介绍]]></title>
@@ -1031,7 +1080,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#101;&#110;&#115;&#111;&#x6e;&#109;&#106;&#x40;&#103;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#x6f;&#x6d;">&#x65;&#x6e;&#115;&#111;&#110;&#109;&#106;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#99;&#x6f;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#111;&#110;&#x6d;&#106;&#x40;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#x73;&#x6f;&#110;&#109;&#106;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -1048,13 +1097,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#58;&#x65;&#110;&#x73;&#111;&#110;&#x6d;&#x6a;&#x40;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#101;&#x6e;&#x73;&#111;&#x6e;&#109;&#106;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#x63;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#101;&#110;&#115;&#x6f;&#x6e;&#x6d;&#106;&#64;&#103;&#x6d;&#97;&#105;&#108;&#46;&#99;&#111;&#x6d;">&#101;&#x6e;&#x73;&#111;&#110;&#x6d;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#58;&#101;&#110;&#115;&#x6f;&#x6e;&#109;&#106;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x65;&#110;&#x73;&#111;&#x6e;&#x6d;&#106;&#64;&#x67;&#x6d;&#x61;&#105;&#108;&#46;&#99;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#58;&#x65;&#x6e;&#115;&#x6f;&#x6e;&#109;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#111;&#109;">&#x65;&#110;&#x73;&#111;&#x6e;&#109;&#x6a;&#x40;&#103;&#x6d;&#97;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>

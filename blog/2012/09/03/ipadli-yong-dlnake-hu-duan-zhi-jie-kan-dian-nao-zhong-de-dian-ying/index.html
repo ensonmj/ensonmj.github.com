@@ -5,17 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>彻底解决WebRequest的GetResponse阻塞问题 - TechToy</title>
+  <title>iPad利用DLNA客户端直接看电脑中的电影 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="第一版 //第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{ WebResponse res = wr.GetResponse(); /* * do something */
-}
-catch(WebException ex)
-{ &hellip;">
+  <meta name="description" content="搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。 电脑了存了一些电影，一直没时间看，这个周末准备用ipad体验一把。说实话ipad直接拷电影很不方便，而且我的乞丐版容量小，放不下几部，于是google怎么用ipad直接观看电脑上的电影，总结了下主要有如下几种方式： &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -24,7 +18,7 @@ catch(WebException ex)
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -85,7 +79,7 @@ catch(WebException ex)
   
   <header>
     
-      <h1 class="entry-title">彻底解决WebRequest的GetResponse阻塞问题</h1>
+      <h1 class="entry-title">iPad利用DLNA客户端直接看电脑中的电影</h1>
     
     
       <p class="meta">
@@ -101,7 +95,7 @@ catch(WebException ex)
   
 
 
-<time datetime="2012-02-16T20:00:00+08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+<time datetime="2012-09-03T20:00:00+08:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2012</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -110,126 +104,47 @@ catch(WebException ex)
   </header>
 
 
-<div class="entry-content"><p>第一版</p>
+<div class="entry-content"><p>搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。</p>
 
-<div><script src='https://gist.github.com/1844714.js?file=WebResponse_block_first.cs'></script>
-<noscript><pre><code>//第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-}
-catch(WebException ex)
-{
-  throw ex;
-}
+<p>电脑了存了一些电影，一直没时间看，这个周末准备用ipad体验一把。说实话ipad直接拷电影很不方便，而且我的乞丐版容量小，放不下几部，于是google怎么用ipad直接观看电脑上的电影，总结了下主要有如下几种方式：</p>
 
-</code></pre></noscript></div>
+<ul>
+<li><p>远程桌面方式首先放弃，ipad的屏幕看电脑桌面还是感觉有点小，控制电脑桌面不爽。</p></li>
+<li><p>ftp共享也许是个不错的方法，后来才知道ipad里面好多视频播放软件可以直接访问ftp里面的内容，反正成功搞定DLNA方式之前没有尝试此方式。</p></li>
+<li><p>uPnP/DLNA，不得不说这是个比较完美的方式，适合geek折腾，<sup>_^</sup></p></li>
+</ul>
 
 
+<p>现在看来其实搞定DLNA这种方式很容易，但当时可是废了好大一股劲儿，主要是搜索合适的软件比较费事。放了n次狗，各种比较之后选择了Linux平台下的miniDLNA，这个同时支持uPnP和DLNA，配置也比较简单，没有打过补丁的好像不支持转码，这个问题我还没有深究。Arch里面就有现成的二进制包</p>
+
+<pre><code>sudo pacman -S miniDLNA
+</code></pre>
+
+<p>这就安装上了，miniDLNA配置很简单，最主要的是配置共享文件夹</p>
+
+<pre><code>media_dir=V,/path/to/video
+</code></pre>
+
+<p>当然也可以配置个简单的显示名啥的，便于识别</p>
+
+<pre><code>friendly_name=MiniDLNA #这个名可以任意取
+</code></pre>
+
+<p>然后就可以启动DLNA服务了</p>
+
+<pre><code>minidlna -R
+</code></pre>
+
+<p>服务端配置完了，客户端就比较简单了，在iPad上找个支持uPnP/DLNA的客户端就行了，我知道的有几个</p>
+
+<ul>
+<li>xbmc - 这个很强大，当需要越狱，刚开始我服务端跟客户端都使用的这个，没搞定，一气之下两边都不用了。</li>
+<li>AirPlayer - 这个也很不错，支持的格式很丰富，可惜不是免费的</li>
+<li>Media Link Player Lite - 这个倒是免费的，也不用越狱，可惜支持的格式不多</li>
+</ul>
 
 
-<!--more-->
-
-
-<p>第二版</p>
-
-<div><script src='https://gist.github.com/1844755.js?file=WebResponse_block_second.cs'></script>
-<noscript><pre><code>//第二版，只释放了response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-}
-catch(WebException ex)
-{
-  res.Close();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-<p>第三版</p>
-
-<div><script src='https://gist.github.com/1844761.js?file=WebResponse_block_third.cs'></script>
-<noscript><pre><code>//正确释放request和response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}
-</code></pre></noscript></div>
-
-
-<p>第四版</p>
-
-<div><script src='https://gist.github.com/1844774.js?file=WebResponse_block_fourth.cs'></script>
-<noscript><pre><code>//代理走不通的情况下，会导致导致阻塞
-WebRequest wr = WebRequest.Create(URL);
-//Proxy may block the http request
-wr.Proxy = null;
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-<p>第五版</p>
-
-<div><script src='https://gist.github.com/1844796.js?file=WebResponse_block_fifth.cs'></script>
-<noscript><pre><code>//多线程并发时，默认最多只能建立两个持久连接，后续请求也会阻塞，
-//增大默认连接数限制可解决此问题
-
-//C#默认只允许两个持久连接，http协议的RFC文档也有此建议
-System.Net.ServicePointManager.DefaultConnectionLimit = 256;
-
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-
+<p>总之没一个完美的，怎么选自己决定吧。</p>
 </div>
 
 
@@ -252,14 +167,8 @@ catch(WebException ex)
   
 
 
-<time datetime="2012-02-16T20:00:00+08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+<time datetime="2012-09-03T20:00:00+08:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2012</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/code/'>Code</a>
-  
-</span>
 
 
     </p>
@@ -275,10 +184,8 @@ catch(WebException ex)
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/02/12/update_ruby_project/" title="Previous Post: [转]如何优雅的升级ruby项目">&laquo; [转]如何优雅的升级ruby项目</a>
+        <a class="basic-alignment left" href="/blog/2012/06/19/zhuan-gdbshi-yong-jie-shao/" title="Previous Post: [转]GDB使用介绍">&laquo; [转]GDB使用介绍</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/" title="Next Post: Arch HDMI 声音输出">Arch HDMI 声音输出 &raquo;</a>
       
     </p>
   </footer>
@@ -363,8 +270,8 @@ catch(WebException ex)
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block/';
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/';
         var disqus_script = 'embed.js';
       
     (function () {
