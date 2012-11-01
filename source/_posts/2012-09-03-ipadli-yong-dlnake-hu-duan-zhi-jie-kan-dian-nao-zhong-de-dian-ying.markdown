@@ -3,7 +3,7 @@ layout: post
 title: "iPad利用DLNA客户端直接看电脑中的电影"
 date: 2012-09-03 20:00
 comments: true
-categories: 
+categories: [Linux]
 ---
 搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。
 
@@ -14,7 +14,7 @@ categories:
 - ftp共享也许是个不错的方法，后来才知道ipad里面好多视频播放软件可以直接访问ftp里面的内容，反正成功搞定DLNA方式之前没有尝试此方式。
 
 - uPnP/DLNA，不得不说这是个比较完美的方式，适合geek折腾，^_^
-
+<!--more-->
 现在看来其实搞定DLNA这种方式很容易，但当时可是废了好大一股劲儿，主要是搜索合适的软件比较费事。放了n次狗，各种比较之后选择了Linux平台下的miniDLNA，这个同时支持uPnP和DLNA，配置也比较简单，没有打过补丁的好像不支持转码，这个问题我还没有深究。Arch里面就有现成的二进制包
 
     sudo pacman -S miniDLNA
