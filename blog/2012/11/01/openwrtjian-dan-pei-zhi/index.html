@@ -5,17 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>彻底解决WebRequest的GetResponse阻塞问题 - TechToy</title>
+  <title>OpenWrt简单配置 - TechToy</title>
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="第一版 //第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{ WebResponse res = wr.GetResponse(); /* * do something */
-}
-catch(WebException ex)
-{ &hellip;">
+  <meta name="description" content="使用UUID挂载U盘或移动硬盘至/opt目录
+修改/etc/opkg.conf添加一行 dest usb /opt/Packages
+修改/etc/profile添加 if [ -d /opt/Packages ]; then export USB=/opt/Packages export &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -24,7 +20,7 @@ catch(WebException ex)
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block">
+  <link rel="canonical" href="http://ensonmj.github.com/blog/2012/11/01/openwrtjian-dan-pei-zhi">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -85,7 +81,7 @@ catch(WebException ex)
   
   <header>
     
-      <h1 class="entry-title">彻底解决WebRequest的GetResponse阻塞问题</h1>
+      <h1 class="entry-title">OpenWrt简单配置</h1>
     
     
       <p class="meta">
@@ -101,7 +97,7 @@ catch(WebException ex)
   
 
 
-<time datetime="2012-02-16T20:00:00+08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+<time datetime="2012-11-01T22:12:00+08:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -110,126 +106,70 @@ catch(WebException ex)
   </header>
 
 
-<div class="entry-content"><p>第一版</p>
+<div class="entry-content"><ol>
+<li><p>使用UUID挂载U盘或移动硬盘至/opt目录</p></li>
+<li><p>修改/etc/opkg.conf添加一行
+ dest usb /opt/Packages</p></li>
+<li><p>修改/etc/profile添加</p>
 
-<div><script src='https://gist.github.com/1844714.js?file=WebResponse_block_first.cs'></script>
-<noscript><pre><code>//第一版，没有释放基础流
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-}
-catch(WebException ex)
-{
-  throw ex;
-}
-
-</code></pre></noscript></div>
-
-
+<p> if [ -d /opt/Packages ]; then <br/>
+   export USB=/opt/Packages <br/>
+   export PATH=$PATH:$USB/usr/bin:$USB/usr/sbin <br/>
+   export LD_LIBRARY_PATH=$USB/lib:$USB/usr/lib <br/>
+ fi</p></li>
+</ol>
 
 
 <!--more-->
 
 
-<p>第二版</p>
+<ol>
+<li><p>下载host文件,屏蔽广告</p>
 
-<div><script src='https://gist.github.com/1844755.js?file=WebResponse_block_second.cs'></script>
-<noscript><pre><code>//第二版，只释放了response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-}
-catch(WebException ex)
-{
-  res.Close();
-  throw ex;
-}</code></pre></noscript></div>
+<p> #!/bin/sh</p>
 
+<p> logger Downloading HostsX.orzhosts<br/>
+ if [ -s /tmp/HostsX.orzhosts ]; then<br/>
+   rm /tmp/HostsX.orzhosts<br/>
+ fi<br/>
+ wget -P /tmp http://hostsx.googlecode.com/svn/trunk/HostsX.orzhosts</p>
 
-<p>第三版</p>
+<p> logger Downloading Smarthosts<br/>
+ if [ -s /tmp/Smart.hosts ]; then<br/>
+   rm /tmp/Smart.hosts<br/>
+ fi<br/>
+ wget http://smarthosts.googlecode.com/svn/trunk/hosts -O /tmp/Smart.hosts</p></li>
+<li><p>配置dnsmasq</p>
 
-<div><script src='https://gist.github.com/1844761.js?file=WebResponse_block_third.cs'></script>
-<noscript><pre><code>//正确释放request和response
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}
-</code></pre></noscript></div>
+<p> addn-hosts=/tmp/HostsX.orzhostsn<br/>
+ addn-hosts=/tmp/Smart.hosts</p></li>
+<li><p>配置Samba共享目录/opt</p></li>
+<li><p>配置miniDLNA共享目录</p>
+
+<p> media_dir=/opt
+ db_dir=/opt/.minidlna(可选)</p></li>
+<li><p>安装ffmpeg支持miniDLNA共享各种格式的video</p></li>
+<li><p>安装python，python-openssl, pyopenssl至U盘</p>
+
+<p> opkg install -d usb python python-openssl pyopenssl(好像不需要这个）</p></li>
+</ol>
 
 
-<p>第四版</p>
+<p>注意，安装软件至U盘中后，某些启动脚本需要链接到相应位置，比如</p>
 
-<div><script src='https://gist.github.com/1844774.js?file=WebResponse_block_fourth.cs'></script>
-<noscript><pre><code>//代理走不通的情况下，会导致导致阻塞
-WebRequest wr = WebRequest.Create(URL);
-//Proxy may block the http request
-wr.Proxy = null;
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
+<pre><code>ln -s /opt/Package/etc/init.d/xx /etc/init.d/xx  
+ln -s /opt/Package/etc/config/yy /etc/config/yy
+</code></pre>
+
+<ol>
+<li><p>安装coreutils-nohup</p>
+
+<p>opkg install coreutils-nohup</p></li>
+<li><p>运行goagent</p></li>
+</ol>
 
 
-<p>第五版</p>
-
-<div><script src='https://gist.github.com/1844796.js?file=WebResponse_block_fifth.cs'></script>
-<noscript><pre><code>//多线程并发时，默认最多只能建立两个持久连接，后续请求也会阻塞，
-//增大默认连接数限制可解决此问题
-
-//C#默认只允许两个持久连接，http协议的RFC文档也有此建议
-System.Net.ServicePointManager.DefaultConnectionLimit = 256;
-
-WebRequest wr = WebRequest.Create(URL);
-try
-{
-  WebResponse res = wr.GetResponse();
-  /*
-   * do something
-  */
-  res.Close();
-  wr.Abort();
-}
-catch(WebException ex)
-{
-  res.Close();
-  wr.Abort();
-  throw ex;
-}</code></pre></noscript></div>
-
-
-
+<p>  nohup python /opt/goagent-x.y.z/proxy.py >> /dev/null 2>&amp;1 &amp;</p>
 </div>
 
 
@@ -252,12 +192,12 @@ catch(WebException ex)
   
 
 
-<time datetime="2012-02-16T20:00:00+08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+<time datetime="2012-11-01T22:12:00+08:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/code/'>Code</a>
+    <a class='category' href='/blog/categories/linux/'>Linux</a>
   
 </span>
 
@@ -275,10 +215,8 @@ catch(WebException ex)
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/02/12/update_ruby_project/" title="Previous Post: [转]如何优雅的升级ruby项目">&laquo; [转]如何优雅的升级ruby项目</a>
+        <a class="basic-alignment left" href="/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/" title="Previous Post: iPad利用DLNA客户端直接看电脑中的电影">&laquo; iPad利用DLNA客户端直接看电脑中的电影</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/05/04/arch-hdmi-sheng-yin-shu-chu/" title="Next Post: Arch HDMI 声音输出">Arch HDMI 声音输出 &raquo;</a>
       
     </p>
   </footer>
@@ -363,8 +301,8 @@ catch(WebException ex)
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block/';
-        var disqus_url = 'http://ensonmj.github.com/blog/2012/02/16/webrequest_getresponse_block/';
+        var disqus_identifier = 'http://ensonmj.github.com/blog/2012/11/01/openwrtjian-dan-pei-zhi/';
+        var disqus_url = 'http://ensonmj.github.com/blog/2012/11/01/openwrtjian-dan-pei-zhi/';
         var disqus_script = 'embed.js';
       
     (function () {

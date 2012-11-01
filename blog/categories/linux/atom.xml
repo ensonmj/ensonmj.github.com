@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | TechToy]]></title>
   <link href="http://ensonmj.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ensonmj.github.com/"/>
-  <updated>2012-09-03T20:56:16+08:00</updated>
+  <updated>2012-11-01T22:15:21+08:00</updated>
   <id>http://ensonmj.github.com/</id>
   <author>
     <name><![CDATA[ensonmj]]></name>
@@ -12,6 +12,130 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[OpenWrt简单配置]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/11/01/openwrtjian-dan-pei-zhi/"/>
+    <updated>2012-11-01T22:12:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/11/01/openwrtjian-dan-pei-zhi</id>
+    <content type="html"><![CDATA[<ol>
+<li><p>使用UUID挂载U盘或移动硬盘至/opt目录</p></li>
+<li><p>修改/etc/opkg.conf添加一行
+ dest usb /opt/Packages</p></li>
+<li><p>修改/etc/profile添加</p>
+
+<p> if [ -d /opt/Packages ]; then <br/>
+   export USB=/opt/Packages <br/>
+   export PATH=$PATH:$USB/usr/bin:$USB/usr/sbin <br/>
+   export LD_LIBRARY_PATH=$USB/lib:$USB/usr/lib <br/>
+ fi</p></li>
+</ol>
+
+
+<!--more-->
+
+
+<ol>
+<li><p>下载host文件,屏蔽广告</p>
+
+<p> #!/bin/sh</p>
+
+<p> logger Downloading HostsX.orzhosts<br/>
+ if [ -s /tmp/HostsX.orzhosts ]; then<br/>
+   rm /tmp/HostsX.orzhosts<br/>
+ fi<br/>
+ wget -P /tmp http://hostsx.googlecode.com/svn/trunk/HostsX.orzhosts</p>
+
+<p> logger Downloading Smarthosts<br/>
+ if [ -s /tmp/Smart.hosts ]; then<br/>
+   rm /tmp/Smart.hosts<br/>
+ fi<br/>
+ wget http://smarthosts.googlecode.com/svn/trunk/hosts -O /tmp/Smart.hosts</p></li>
+<li><p>配置dnsmasq</p>
+
+<p> addn-hosts=/tmp/HostsX.orzhostsn<br/>
+ addn-hosts=/tmp/Smart.hosts</p></li>
+<li><p>配置Samba共享目录/opt</p></li>
+<li><p>配置miniDLNA共享目录</p>
+
+<p> media_dir=/opt
+ db_dir=/opt/.minidlna(可选)</p></li>
+<li><p>安装ffmpeg支持miniDLNA共享各种格式的video</p></li>
+<li><p>安装python，python-openssl, pyopenssl至U盘</p>
+
+<p> opkg install -d usb python python-openssl pyopenssl(好像不需要这个）</p></li>
+</ol>
+
+
+<p>注意，安装软件至U盘中后，某些启动脚本需要链接到相应位置，比如</p>
+
+<pre><code>ln -s /opt/Package/etc/init.d/xx /etc/init.d/xx  
+ln -s /opt/Package/etc/config/yy /etc/config/yy
+</code></pre>
+
+<ol>
+<li><p>安装coreutils-nohup</p>
+
+<p>opkg install coreutils-nohup</p></li>
+<li><p>运行goagent</p></li>
+</ol>
+
+
+<p>  nohup python /opt/goagent-x.y.z/proxy.py >> /dev/null 2>&amp;1 &amp;</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[iPad利用DLNA客户端直接看电脑中的电影]]></title>
+    <link href="http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/"/>
+    <updated>2012-09-03T20:00:00+08:00</updated>
+    <id>http://ensonmj.github.com/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying</id>
+    <content type="html"><![CDATA[<p>搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。</p>
+
+<p>电脑了存了一些电影，一直没时间看，这个周末准备用ipad体验一把。说实话ipad直接拷电影很不方便，而且我的乞丐版容量小，放不下几部，于是google怎么用ipad直接观看电脑上的电影，总结了下主要有如下几种方式：</p>
+
+<ul>
+<li><p>远程桌面方式首先放弃，ipad的屏幕看电脑桌面还是感觉有点小，控制电脑桌面不爽。</p></li>
+<li><p>ftp共享也许是个不错的方法，后来才知道ipad里面好多视频播放软件可以直接访问ftp里面的内容，反正成功搞定DLNA方式之前没有尝试此方式。</p></li>
+<li><p>uPnP/DLNA，不得不说这是个比较完美的方式，适合geek折腾，<sup>_^</sup></p></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>现在看来其实搞定DLNA这种方式很容易，但当时可是废了好大一股劲儿，主要是搜索合适的软件比较费事。放了n次狗，各种比较之后选择了Linux平台下的miniDLNA，这个同时支持uPnP和DLNA，配置也比较简单，没有打过补丁的好像不支持转码，这个问题我还没有深究。Arch里面就有现成的二进制包</p>
+
+<pre><code>sudo pacman -S miniDLNA
+</code></pre>
+
+<p>这就安装上了，miniDLNA配置很简单，最主要的是配置共享文件夹</p>
+
+<pre><code>media_dir=V,/path/to/video
+</code></pre>
+
+<p>当然也可以配置个简单的显示名啥的，便于识别</p>
+
+<pre><code>friendly_name=MiniDLNA #这个名可以任意取
+</code></pre>
+
+<p>然后就可以启动DLNA服务了</p>
+
+<pre><code>minidlna -R
+</code></pre>
+
+<p>服务端配置完了，客户端就比较简单了，在iPad上找个支持uPnP/DLNA的客户端就行了，我知道的有几个</p>
+
+<ul>
+<li>xbmc - 这个很强大，当需要越狱，刚开始我服务端跟客户端都使用的这个，没搞定，一气之下两边都不用了。</li>
+<li>AirPlayer - 这个也很不错，支持的格式很丰富，可惜不是免费的</li>
+<li>Media Link Player Lite - 这个倒是免费的，也不用越狱，可惜支持的格式不多</li>
+</ul>
+
+
+<p>总之没一个完美的，怎么选自己决定吧。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[转]GDB使用介绍]]></title>
@@ -664,173 +788,6 @@ lrwxrwxrwx 1 root root 16 Jun  5 04:12 /usr/lib/systemd/system/default.target -&
 </code></pre>
 
 <p><img src="/images/boot.svg" title="Boot with systemd in arch" alt="Boot with systemd in arch" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[转]Linux inode 介绍]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/06/02/zhuan-linux-inode-jie-shao/"/>
-    <updated>2012-06-02T21:13:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/06/02/zhuan-linux-inode-jie-shao</id>
-    <content type="html"><![CDATA[<p>本文转自<a href="http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html">http://www.cnblogs.com/itech/archive/2012/05/15/2502284.html</a>，在原文基础上稍加排版，纯属收藏</p>
-
-<p>一、inode是什么？</p>
-
-<p>理解inode，要从文件储存说起。文件储存在硬盘上，硬盘的最小存储单位叫做"扇区"（Sector）。每个扇区储存512字节（相当于0.5KB）。</p>
-
-<p>操作系统读取硬盘的时候，不会一个个扇区地读取，这样效率太低，而是一次性连续读取多个扇区，即一次性读取一个"块"（block）。这种由多个扇区组成的"块"，是文件存取的最小单位。"块"的大小，最常见的是4KB，即连续八个 sector组成一个 block。</p>
-
-<p>文件数据都储存在"块"中，那么很显然，我们还必须找到一个地方储存文件的元信息，比如文件的创建者、文件的创建日期、文件的大小等等。这种储存文件元信息的区域就叫做inode，中文译名为"索引节点"。</p>
-
-<!--more-->
-
-
-<p>
-二、inode的内容</p>
-
-<p>inode包含文件的元信息，具体来说有以下内容：</p>
-
-<blockquote><p>文件的字节数<br/>
-文件拥有者的User ID<br/>
-文件的Group ID<br/>
-文件的读、写、执行权限<br/>
-文件的时间戳，共有三个：ctime指inode上一次变动的时间，mtime指文件内容上一次变动的时间，atime指文件上一次打开的时间。<br/>
-链接数，即有多少文件名指向这个inode<br/>
-文件数据block的位置</p></blockquote>
-
-<p>可以用<code>stat</code>命令，查看某个文件的inode信息：</p>
-
-<pre><code>$stat example.txt 
-  File: ‘example.txt’
-  Size: 5           Blocks: 8          IO Block: 4096   regular file
-Device: 805h/2053d  Inode: 13771400    Links: 1
-Access: (0644/-rw-r--r--)  Uid: ( 1000/ ensonmj)   Gid: (  100/   users)
-Access: 2012-06-02 21:21:37.546284322 +0800
-Modify: 2012-06-02 21:22:02.769617202 +0800
-Change: 2012-06-02 21:22:02.769617202 +0800
- Birth: -
-</code></pre>
-
-<p>总之，除了<strong>文件名</strong>以外的所有文件信息，都存在inode之中。至于为什么没有文件名，下文会有详细解释。</p>
-
-<p>三、inode的大小</p>
-
-<p>inode也会消耗硬盘空间，所以硬盘格式化的时候，操作系统自动将硬盘分成两个区域。一个是数据区，存放文件数据；另一个是inode区（inode table），存放inode所包含的信息。</p>
-
-<p>每个inode节点的大小，一般是128B或256B。inode节点的总数，在格式化时就给定，一般是每1KB或每2KB就设置一个inode。假定在一块1GB的硬盘中，每个inode节点的大小为128B，每1KB就设置一个inode，那么inode table的大小就会达到128MB，占整块硬盘的12.8%。</p>
-
-<p>查看每个硬盘分区的inode总数和已经使用的数量，可以使用<code>df</code>命令：</p>
-
-<pre><code>$df -i
-Filesystem       Inodes  IUsed    IFree IUse% Mounted on
-rootfs          6250496 325389  5925107    6% /
-/dev            1019935    624  1019311    1% /dev
-run             1020674    464  1020210    1% /run
-/dev/sda3       6250496 325389  5925107    6% /
-shm             1020674      6  1020668    1% /dev/shm
-/dev/sda5      14983168 116890 14866278    1% /home
-</code></pre>
-
-<p>查看每个inode节点的大小，可以用如下命令（这个命令在我本机执行失败）：</p>
-
-<pre><code>sudo dumpe2fs -h /dev/sda | grep "Inode size"
-</code></pre>
-
-<p>由于每个文件都必须有一个inode，因此有可能发生inode已经用光，但是硬盘还未存满的情况。这时，就无法在硬盘上创建新文件。</p>
-
-<p>四、inode号码</p>
-
-<p>每个inode都有一个号码，操作系统用inode号码来识别不同的文件。</p>
-
-<p>这里值得重复一遍，Unix/Linux系统内部不使用文件名，而使用inode号码来识别文件。对于系统来说，文件名只是inode号码便于识别的别称或者绰号。表面上，用户通过文件名，打开文件。实际上，系统内部这个过程分成三步：首先，系统找到这个文件名对应的inode号码；其次，通过inode号码，获取inode信息；最后，根据inode信息，找到文件数据所在的block，读出数据。</p>
-
-<p>使用<code>ls -i</code>命令，可以看到文件名对应的inode号码：</p>
-
-<pre><code>$ls -i example.txt 
-13771400 example.txt
-</code></pre>
-
-<p>五、目录文件</p>
-
-<p>Unix/Linux系统中，目录（directory）也是一种文件。打开目录，实际上就是打开目录文件。</p>
-
-<p>目录文件的结构非常简单，就是一系列目录项（dirent）的列表。每个目录项，由两部分组成：所包含文件的文件名，以及该文件名对应的inode号码。</p>
-
-<p><code>ls</code>命令只列出目录文件中的所有文件名：</p>
-
-<pre><code>ls
-</code></pre>
-
-<p>ls -i命令列出整个目录文件，即文件名和inode号码：</p>
-
-<pre><code>ls -i
-</code></pre>
-
-<p>如果要查看文件的详细信息，就必须根据inode号码，访问inode节点，读取信息。ls -l命令列出文件的详细信息。</p>
-
-<pre><code>ls -l
-</code></pre>
-
-<p>六、硬链接</p>
-
-<p>一般情况下，文件名和inode号码是"一一对应"关系，每个inode号码对应一个文件名。但是，Unix/Linux系统允许，<strong>多个文件名指向同一个inode号码</strong>。这意味着，可以用不同的文件名访问同样的内容；<strong>对文件内容进行修改，会影响到所有文件名</strong>；但是，<strong>删除一个文件名，不影响另一个文件名的访问</strong>。这种情况就被称为"硬链接"（hard link）。</p>
-
-<p><code>ln</code>命令可以创建硬链接：</p>
-
-<pre><code>ln 源文件 目标文件
-</code></pre>
-
-<p>运行上面这条命令以后，源文件与目标文件的inode号码相同，都指向同一个inode。inode信息中有一项叫做"链接数"，记录指向该inode的文件名总数，这时就会增加1。反过来，删除一个文件名，就会使得inode节点中的"链接数"减1。当这个值减到0，表明没有文件名指向这个inode，系统就会回收这个inode号码，以及其所对应block区域。</p>
-
-<p>这里顺便说一下目录文件的"链接数"。创建目录时，默认会生成两个目录项："."和".."。前者的inode号码就是当前目录的inode号码，等同于当前目录的"硬链接"；后者的inode号码就是当前目录的父目录的inode号码，等同于父目录的"硬链接"。所以，任何一个目录的"硬链接"总数，总是等于2加上它的子目录总数（含隐藏目录）,这里的2是父目录对其的“硬链接”和当前目录下的".硬链接“。</p>
-
-<p>七、软链接</p>
-
-<p>除了硬链接以外，还有一种特殊情况。文件A和文件B的inode号码虽然不一样，但是文件A的内容是文件B的路径。读取文件A时，系统会自动将访问者导向文件B。因此，无论打开哪一个文件，最终读取的都是文件B。这时，文件A就称为文件B的"软链接"（soft link）或者"符号链接（symbolic link）。</p>
-
-<p>这意味着，文件A依赖于文件B而存在，如果删除了文件B，打开文件A就会报错："No such file or directory"。这是软链接与硬链接最大的不同：<strong>文件A指向文件B的文件名，而不是文件B的inode号码</strong>，文件B的inode"链接数"不会因此发生变化。</p>
-
-<p><code>ln -s</code>命令可以创建软链接。</p>
-
-<pre><code>ln -s 源文文件或目录 目标文件或目录
-</code></pre>
-
-<p>八、inode的特殊作用</p>
-
-<p>由于inode号码与文件名分离，这种机制导致了一些Unix/Linux系统特有的现象：</p>
-
-<ol>
-<li>有时，文件名包含特殊字符，无法正常删除。这时，直接删除inode节点，就能起到删除文件的作用。</li>
-<li>移动文件或重命名文件，只是改变文件名，不影响inode号码。</li>
-<li>打开一个文件以后，系统就以inode号码来识别这个文件，不再考虑文件名。因此，通常来说，系统无法从inode号码得知文件名。</li>
-</ol>
-
-
-<p>第3点使得软件更新变得简单，<strong>可以在不关闭软件的情况下进行更新，不需要重启</strong>。因为系统通过inode号码，识别运行中的文件，不通过文件名。更新的时候，新版文件以同样的文件名，生成一个新的inode，不会影响到运行中的文件。等到下一次运行这个软件的时候，文件名就自动指向新版文件，旧版文件的inode则被回收。</p>
-
-<p>九 实际问题</p>
-
-<p>在一台配置较低的Linux服务器（内存、硬盘比较小）的/data分区内创建文件时，系统提示磁盘空间不足，用<code>df -h</code>命令查看了一下磁盘使用情况，发现/data分区只使用了66%，还有12G的剩余空间，按理说不会出现这种问题。后来用<code>df -i</code>查看了一下/data分区的索引节点(inode)，发现已经用满(IUsed=100%)，导致系统无法创建新目录和文件。</p>
-
-<p>查找原因：<br/>
-/data/cache目录中存在数量非常多的小字节缓存文件，占用的block不多，但是占用了大量的inode。 <br/>
-解决方案：<br/>
-1、删除/data/cache目录中的部分文件，释放出/data分区的一部分inode。<br/>
-2、用软连接将空闲分区/opt中的newcache目录连接到/data/cache，使用/opt分区的inode来缓解/data分区inode不足的问题：</p>
-
-<pre><code>ln -s /opt/newcache /data/cache 
-</code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Arch HDMI声音输出（续）]]></title>
-    <link href="http://ensonmj.github.com/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/"/>
-    <updated>2012-05-14T20:42:00+08:00</updated>
-    <id>http://ensonmj.github.com/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-(xu-)</id>
-    <content type="html"><![CDATA[<p>上一篇说到PulseAudio由于一个bug导致HDMI默认创建的设备不对，无法输出声音。最新的PulseAudio 2.0修复了此bug，现在可以不用做任何特殊配置就可以使用HDMI设备了。</p>
-
-<p>另外说一句，Octopress好像不支持原文修改更新，只好再写了这篇短文，算是对上一篇的更新。</p>
 ]]></content>
   </entry>
   

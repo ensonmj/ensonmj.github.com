@@ -9,7 +9,9 @@
   <meta name="author" content="ensonmj">
 
   
-  <meta name="description" content="搞了个乞丐版的new pad，平时用来看看新闻,博客，偶尔玩玩游戏真的挺爽。 电脑了存了一些电影，一直没时间看，这个周末准备用ipad体验一把。说实话ipad直接拷电影很不方便，而且我的乞丐版容量小，放不下几部，于是google怎么用ipad直接观看电脑上的电影，总结了下主要有如下几种方式： &hellip;">
+  <meta name="description" content="使用UUID挂载U盘或移动硬盘至/opt目录
+修改/etc/opkg.conf添加一行 dest usb /opt/Packages
+修改/etc/profile添加 if [ -d /opt/Packages ]; then export USB=/opt/Packages export &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +84,61 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/11/01/openwrtjian-dan-pei-zhi/">OpenWrt简单配置</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-01T22:12:00+08:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
+        
+         | <a href="/blog/2012/11/01/openwrtjian-dan-pei-zhi/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ol>
+<li><p>使用UUID挂载U盘或移动硬盘至/opt目录</p></li>
+<li><p>修改/etc/opkg.conf添加一行
+ dest usb /opt/Packages</p></li>
+<li><p>修改/etc/profile添加</p>
+
+<p> if [ -d /opt/Packages ]; then <br/>
+   export USB=/opt/Packages <br/>
+   export PATH=$PATH:$USB/usr/bin:$USB/usr/sbin <br/>
+   export LD_LIBRARY_PATH=$USB/lib:$USB/usr/lib <br/>
+ fi</p></li>
+</ol>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/01/openwrtjian-dan-pei-zhi/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/">iPad利用DLNA客户端直接看电脑中的电影</a></h1>
     
     
@@ -118,38 +175,12 @@
 </ul>
 
 
-<p>现在看来其实搞定DLNA这种方式很容易，但当时可是废了好大一股劲儿，主要是搜索合适的软件比较费事。放了n次狗，各种比较之后选择了Linux平台下的miniDLNA，这个同时支持uPnP和DLNA，配置也比较简单，没有打过补丁的好像不支持转码，这个问题我还没有深究。Arch里面就有现成的二进制包</p>
-
-<pre><code>sudo pacman -S miniDLNA
-</code></pre>
-
-<p>这就安装上了，miniDLNA配置很简单，最主要的是配置共享文件夹</p>
-
-<pre><code>media_dir=V,/path/to/video
-</code></pre>
-
-<p>当然也可以配置个简单的显示名啥的，便于识别</p>
-
-<pre><code>friendly_name=MiniDLNA #这个名可以任意取
-</code></pre>
-
-<p>然后就可以启动DLNA服务了</p>
-
-<pre><code>minidlna -R
-</code></pre>
-
-<p>服务端配置完了，客户端就比较简单了，在iPad上找个支持uPnP/DLNA的客户端就行了，我知道的有几个</p>
-
-<ul>
-<li>xbmc - 这个很强大，当需要越狱，刚开始我服务端跟客户端都使用的这个，没搞定，一气之下两边都不用了。</li>
-<li>AirPlayer - 这个也很不错，支持的格式很丰富，可惜不是免费的</li>
-<li>Media Link Player Lite - 这个倒是免费的，也不用越狱，可惜支持的格式不多</li>
-</ul>
-
-
-<p>总之没一个完美的，怎么选自己决定吧。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -577,7 +608,7 @@ a128978 write a blog about hdmi audio in arch<br/>
 
 <p>$git log &#8211;grep &#8220;arch hdmi&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x65;&#110;&#x73;&#111;&#110;&#x6d;&#106;&#x40;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;">&#x65;&#x6e;&#x73;&#x6f;&#110;&#109;&#106;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#109;&#x61;&#105;&#108;&#x74;&#111;&#x3a;&#101;&#110;&#115;&#x6f;&#x6e;&#109;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#x65;&#x6e;&#115;&#x6f;&#x6e;&#109;&#106;&#x40;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p></blockquote>
@@ -594,13 +625,13 @@ Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <blockquote><p>$git log -G&#8221;Arch HDMI&#8221;<br/>
 commit 939439b3b011f05c7e86ab7efd38c67a6da3f4ad<br/>
-Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#101;&#110;&#115;&#x6f;&#x6e;&#x6d;&#106;&#64;&#103;&#x6d;&#97;&#105;&#108;&#46;&#99;&#111;&#x6d;">&#101;&#x6e;&#x73;&#111;&#110;&#x6d;&#106;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a><br/>
+Author: ensonmj <a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#101;&#110;&#115;&#111;&#110;&#109;&#106;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#99;&#x6f;&#109;">&#x65;&#x6e;&#x73;&#111;&#x6e;&#x6d;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#x6d;</a><br/>
 Date:   Mon May 14 20:49:32 2012 +0800</p>
 
 <p>   Update arch hdmi config</p>
 
 <p>commit a1289784169fcba713c2fa5ad7a860f70e10f289<br/>
-Author: ensonmj <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#58;&#x65;&#x6e;&#115;&#x6f;&#x6e;&#109;&#x6a;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#111;&#109;">&#x65;&#110;&#x73;&#111;&#x6e;&#109;&#x6a;&#x40;&#103;&#x6d;&#97;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a><br/>
+Author: ensonmj <a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#101;&#x6e;&#115;&#111;&#x6e;&#x6d;&#106;&#x40;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#x6f;&#109;">&#101;&#x6e;&#115;&#x6f;&#x6e;&#109;&#106;&#64;&#103;&#x6d;&#x61;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;</a><br/>
 Date:   Fri May 4 23:02:56 2012 +0800</p>
 
 <p>   write a blog about hdmi audio in arch</p></blockquote>
@@ -624,46 +655,6 @@ source/</em>posts/2012-05-14-arch-hdmisheng-yin-shu-chu-(xu-).markdown:title: &#
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/">Arch HDMI声音输出（续）</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-05-14T20:42:00+08:00" pubdate data-updated="true">May 14<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/05/14/arch-hdmisheng-yin-shu-chu-%28xu-%29/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>上一篇说到PulseAudio由于一个bug导致HDMI默认创建的设备不对，无法输出声音。最新的PulseAudio 2.0修复了此bug，现在可以不用做任何特殊配置就可以使用HDMI设备了。</p>
-
-<p>另外说一句，Octopress好像不支持原文修改更新，只好再写了这篇短文，算是对上一篇的更新。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -679,7 +670,7 @@ source/</em>posts/2012-05-14-arch-hdmisheng-yin-shu-chu-(xu-).markdown:title: &#
  <ul id="categories">
  <li class='category'><a href='/blog/categories/code/'>Code (3)</a></li>
 <li class='category'><a href='/blog/categories/git/'>Git (3)</a></li>
-<li class='category'><a href='/blog/categories/linux/'>Linux (7)</a></li>
+<li class='category'><a href='/blog/categories/linux/'>Linux (9)</a></li>
 <li class='category'><a href='/blog/categories/ruby/'>Ruby (1)</a></li>
 <li class='category'><a href='/blog/categories/web/'>Web (2)</a></li>
 
@@ -688,6 +679,10 @@ source/</em>posts/2012-05-14-arch-hdmisheng-yin-shu-chu-(xu-).markdown:title: &#
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/11/01/openwrtjian-dan-pei-zhi/">OpenWrt简单配置</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/09/03/ipadli-yong-dlnake-hu-duan-zhi-jie-kan-dian-nao-zhong-de-dian-ying/">iPad利用DLNA客户端直接看电脑中的电影</a>
@@ -703,10 +698,6 @@ source/</em>posts/2012-05-14-arch-hdmisheng-yin-shu-chu-(xu-).markdown:title: &#
     
       <li class="post">
         <a href="/blog/2012/06/12/archshi-yong-systemdti-huan-sysvinit/">Arch使用systemd替换sysVinit</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/06/02/zhuan-linux-inode-jie-shao/">[转]Linux inode 介绍</a>
       </li>
     
   </ul>
